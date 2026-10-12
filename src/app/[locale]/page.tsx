@@ -90,11 +90,11 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {[
-              { letter: 'P', title: 'Percibir', desc: t('pauseP'), icon: Activity },
-              { letter: 'A', title: 'Analizar', desc: t('pauseA'), icon: Brain },
-              { letter: 'U', title: 'Uncover', desc: t('pauseU'), icon: Compass },
-              { letter: 'S', title: 'Simular', desc: t('pauseS'), icon: Sparkles },
-              { letter: 'L', title: 'Aprender', desc: t('pauseL'), icon: Award },
+              { letter: t('pauseLetterP'), title: t('pauseTitleP'), desc: t('pauseDescP'), icon: Activity },
+              { letter: t('pauseLetterA'), title: t('pauseTitleA'), desc: t('pauseDescA'), icon: Brain },
+              { letter: t('pauseLetterU'), title: t('pauseTitleU'), desc: t('pauseDescU'), icon: Compass },
+              { letter: t('pauseLetterS'), title: t('pauseTitleS'), desc: t('pauseDescS'), icon: Sparkles },
+              { letter: t('pauseLetterE'), title: t('pauseTitleE'), desc: t('pauseDescE'), icon: Award },
             ].map((step, idx) => {
               const Icon = step.icon;
               return (

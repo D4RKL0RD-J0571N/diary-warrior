@@ -9,14 +9,18 @@ const messageMap: Record<Locale, any> = {
 };
 
 export default getRequestConfig(async ({ requestLocale }) => {
+  // Typically corresponds to the `[locale]` segment
   let locale = await requestLocale;
 
+  // Validate that the incoming `locale` parameter is valid
   if (!locale || !locales.includes(locale as Locale)) {
     locale = defaultLocale;
   }
 
+  const selectedLocale = locale as Locale;
+
   return {
-    locale,
-    messages: messageMap[locale as Locale] || esMessages,
+    locale: selectedLocale,
+    messages: messageMap[selectedLocale] || esMessages,
   };
 });

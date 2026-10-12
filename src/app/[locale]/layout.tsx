@@ -7,7 +7,13 @@ import { Footer } from "@/components/shared/Footer";
 import { notFound } from "next/navigation";
 import { locales, Locale } from "@/types/database";
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import esMessages from '../../../messages/es.json';
+import enMessages from '../../../messages/en.json';
+
+const messagesMap: Record<Locale, any> = {
+  es: esMessages,
+  en: enMessages,
+};
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-serif",
@@ -65,17 +71,17 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  // Providing all messages to the client side is the easiest way to get started
-  const messages = await getMessages();
+  const currentLocale = locale as Locale;
+  const messages = messagesMap[currentLocale] || esMessages;
 
   return (
     <html
-      lang={locale}
+      lang={currentLocale}
       className={`${cormorant.variable} ${inter.variable} scroll-smooth antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-screen flex flex-col bg-[#0A0D0B] text-[#F4F1E8] font-sans selection:bg-[#C7A86A]/20 selection:text-[#C7A86A]">
-        <NextIntlClientProvider messages={messages} locale={locale}>
+        <NextIntlClientProvider messages={messages} locale={currentLocale}>
           <AppProvider>
             <NavigationHeader />
             <main className="flex-1 flex flex-col">{children}</main>
