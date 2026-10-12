@@ -120,39 +120,55 @@ REVOKE EXECUTE ON FUNCTION public.is_admin() FROM anon;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
 
 -- PROFILES Policies
-CREATE POLICY "Users can view their own profile or admins can view all"
+CREATE POLICY "profiles_select_policy"
     ON public.profiles FOR SELECT
-    USING (auth.uid() = id OR public.is_admin());
+    TO authenticated
+    USING ((id = (SELECT auth.uid())) OR public.is_admin());
 
-CREATE POLICY "Users can update their own profile"
+CREATE POLICY "profiles_update_policy"
     ON public.profiles FOR UPDATE
-    USING (auth.uid() = id);
+    TO authenticated
+    USING (id = (SELECT auth.uid()))
+    WITH CHECK (id = (SELECT auth.uid()));
 
 -- USER PROGRESS Policies
-CREATE POLICY "Users can view own progress or admins can view all"
+CREATE POLICY "user_progress_select_policy"
     ON public.user_progress FOR SELECT
-    USING (auth.uid() = user_id OR public.is_admin());
+    TO authenticated
+    USING ((user_id = (SELECT auth.uid())) OR public.is_admin());
+
+CREATE POLICY "user_progress_all_policy"
+    ON public.user_progress FOR ALL
+    TO authenticated
+    USING ((user_id = (SELECT auth.uid())) OR public.is_admin())
+    WITH CHECK ((user_id = (SELECT auth.uid())) OR public.is_admin());
 
 -- JOURNAL ENTRIES Policies
-CREATE POLICY "Users can read own entries or admins can inspect all"
+CREATE POLICY "journal_entries_select_policy"
     ON public.journal_entries FOR SELECT
-    USING (auth.uid() = user_id OR public.is_admin());
+    TO authenticated
+    USING ((user_id = (SELECT auth.uid())) OR public.is_admin());
 
-CREATE POLICY "Users can insert/update own entries"
+CREATE POLICY "journal_entries_modify_policy"
     ON public.journal_entries FOR ALL
-    USING (auth.uid() = user_id);
+    TO authenticated
+    USING (user_id = (SELECT auth.uid()))
+    WITH CHECK (user_id = (SELECT auth.uid()));
 
 -- MENTOR FEEDBACK Policies
-CREATE POLICY "Students can view feedback sent to them"
+CREATE POLICY "mentor_feedback_student_select"
     ON public.mentor_feedback FOR SELECT
+    TO authenticated
     USING (
-        auth.uid() = user_id AND mentor_feedback IS NOT NULL
+        (user_id = (SELECT auth.uid()) AND mentor_feedback IS NOT NULL)
         OR public.is_admin()
     );
 
-CREATE POLICY "Admins can manage mentor feedback and private notes"
+CREATE POLICY "mentor_feedback_admin_manage"
     ON public.mentor_feedback FOR ALL
-    USING (public.is_admin());
+    TO authenticated
+    USING (public.is_admin())
+    WITH CHECK (public.is_admin());
 
 -- =================================================================================
 -- 9. ADMIN SEED SCRIPT (INITIAL MENTOR PROVISIONING)
