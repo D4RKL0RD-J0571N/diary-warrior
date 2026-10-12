@@ -33,7 +33,7 @@ export default function CheckoutPage() {
         <div className="rounded-xl border border-[#C7A86A]/30 bg-[#064E3B]/20 p-5 mb-6 flex items-center justify-between">
           <div>
             <h3 className="font-serif text-lg font-bold text-[#F4F1E8]">{t('productName')}</h3>
-            <p className="text-xs text-[#A8B0AA]">Acceso vitalicio · Sincronización continua</p>
+            <p className="text-xs text-[#A8B0AA]">{t('productSub')}</p>
           </div>
           <div className="text-right">
             <span className="font-serif text-2xl font-bold text-[#C7A86A]">$47</span>
@@ -44,22 +44,22 @@ export default function CheckoutPage() {
         {/* Input Details */}
         <div className="space-y-4 mb-6">
           <div>
-            <label className="block text-xs font-medium text-[#A8B0AA] mb-1">Nombre Completo</label>
+            <label className="block text-xs font-medium text-[#A8B0AA] mb-1">{t('nameLabel')}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Tu nombre completo"
+              placeholder={t('namePlaceholder')}
               className="w-full rounded-lg border border-emerald-950 bg-[#0A0D0B] px-3.5 py-2 text-sm text-[#F4F1E8] focus:border-[#C7A86A] focus:outline-none"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#A8B0AA] mb-1">Correo Electrónico</label>
+            <label className="block text-xs font-medium text-[#A8B0AA] mb-1">{t('emailLabel')}</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu.correo@ejemplo.com"
+              placeholder={t('emailPlaceholder')}
               className="w-full rounded-lg border border-emerald-950 bg-[#0A0D0B] px-3.5 py-2 text-sm text-[#F4F1E8] focus:border-[#C7A86A] focus:outline-none"
             />
           </div>

@@ -27,9 +27,9 @@ export function Footer() {
         </p>
 
         <div className="flex items-center gap-4 text-[11px]">
-          <span>© {new Date().getFullYear()} La Mente del Guerrero</span>
+          <span>{t('copyright', { year: new Date().getFullYear() })}</span>
           <span>·</span>
-          <span>Arquitectura Cognitiva</span>
+          <span>{t('cognitiveArchitecture')}</span>
         </div>
       </div>
     </footer>

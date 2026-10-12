@@ -28,13 +28,13 @@ export default function StudentDashboardPage() {
       <div className="rounded-2xl border border-emerald-950/80 bg-gradient-to-br from-[#0B1F1A] via-[#064E3B]/30 to-[#0A0D0B] p-6 sm:p-10 mb-10 shadow-xl relative overflow-hidden">
         <div className="max-w-3xl">
           <span className="text-xs font-semibold uppercase tracking-widest text-[#C7A86A]">
-            Portal del Alumno · 21 Días
+            {t('studentPortalBadge')}
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl font-bold text-[#F4F1E8] mt-2 mb-3">
-            {t('greeting')}, {currentUser?.name || 'Guerrero'}
+            {t('greeting')}, {currentUser?.name || tCommon('brand')}
           </h1>
           <p className="text-sm text-[#A8B0AA] leading-relaxed mb-6">
-            Día {progress.currentDay} de 21: <span className="text-[#F4F1E8] font-medium">{currentDayInfo.title}</span>
+            {tCommon('day')} {progress.currentDay} {tCommon('of21Days')}: <span className="text-[#F4F1E8] font-medium">{currentDayInfo.title}</span>
           </p>
 
           {/* Progress Bar */}
@@ -67,7 +67,7 @@ export default function StudentDashboardPage() {
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-2xl font-bold text-[#F4F1E8]">{t('timelineTitle')}</h2>
-            <span className="text-xs text-[#A8B0AA]">3 Etapas · 7 Días por Ciclo</span>
+            <span className="text-xs text-[#A8B0AA]">{t('timelineSub')}</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -103,11 +103,11 @@ export default function StudentDashboardPage() {
                         <span className={`text-[11px] font-bold uppercase tracking-wider ${
                           isCurrent ? 'text-[#C7A86A]' : 'text-[#A8B0AA]'
                         }`}>
-                          Día {dayNum}
+                          {tCommon('day')} {dayNum}
                         </span>
                         {dayNum === 1 && (
                           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase">
-                            Gratis
+                            {tCommon('freeBadge')}
                           </span>
                         )}
                       </div>
@@ -129,7 +129,7 @@ export default function StudentDashboardPage() {
                   <div className="mt-4 pt-3 border-t border-emerald-950/60 flex items-center justify-between">
                     <span className="text-[10px] text-[#A8B0AA]">
                       {!isUnlocked
-                        ? 'Bloqueado (Plan 21 Días)'
+                        ? t('statusLockedPlan')
                         : isCompleted
                         ? t('statusCompleted')
                         : isAvailable
@@ -141,7 +141,7 @@ export default function StudentDashboardPage() {
                         href={`/dashboard/day/${dayNum}`}
                         className="text-xs text-[#C7A86A] hover:underline font-medium inline-flex items-center gap-1"
                       >
-                        <span>Abrir</span>
+                        <span>{t('openDay')}</span>
                         <ArrowRight className="w-3 h-3" />
                       </Link>
                     ) : !isUnlocked ? (
@@ -149,7 +149,7 @@ export default function StudentDashboardPage() {
                         href="/checkout"
                         className="text-[11px] text-amber-400 hover:text-amber-300 font-semibold inline-flex items-center gap-1"
                       >
-                        <span>Desbloquear</span>
+                        <span>{t('unlockDay')}</span>
                         <Lock className="w-2.5 h-2.5" />
                       </Link>
                     ) : null}

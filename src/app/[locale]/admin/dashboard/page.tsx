@@ -44,16 +44,16 @@ export default function AdminDashboardPage() {
             <Users className="w-4 h-4 text-[#C7A86A]" />
           </div>
           <div className="text-3xl font-serif font-bold text-[#F4F1E8]">{totalStudents}</div>
-          <span className="text-[11px] text-emerald-400 mt-2 block">100% inscritos activos</span>
+          <span className="text-[11px] text-emerald-400 mt-2 block">{t('statActiveEnrolled')}</span>
         </div>
 
         <div className="rounded-xl border border-emerald-950/80 bg-[#0B1F1A]/70 p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs uppercase font-bold text-[#A8B0AA]">Ingresos Totales</span>
+            <span className="text-xs uppercase font-bold text-[#A8B0AA]">{t('statTotalRevenue')}</span>
             <DollarSign className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-3xl font-serif font-bold text-[#F4F1E8]">${totalRevenue} <span className="text-xs text-[#A8B0AA]">USD</span></div>
-          <span className="text-[11px] text-[#A8B0AA] mt-2 block">Pagos verificados</span>
+          <span className="text-[11px] text-[#A8B0AA] mt-2 block">{t('statVerifiedPayments')}</span>
         </div>
 
         <div className="rounded-xl border border-emerald-950/80 bg-[#0B1F1A]/70 p-6">

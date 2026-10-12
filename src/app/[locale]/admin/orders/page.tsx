@@ -34,13 +34,13 @@ export default function AdminOrdersPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-[#0A0D0B] text-[#A8B0AA] uppercase tracking-wider border-b border-emerald-950/80 font-semibold">
               <tr>
-                <th className="py-3.5 px-4">Orden / ID</th>
-                <th className="py-3.5 px-4">Cliente</th>
-                <th className="py-3.5 px-4">Pasarela</th>
-                <th className="py-3.5 px-4">Monto</th>
-                <th className="py-3.5 px-4">Fecha</th>
-                <th className="py-3.5 px-4">Estado</th>
-                <th className="py-3.5 px-4 text-right">Acciones</th>
+                <th className="py-3.5 px-4">{t('orderColId')}</th>
+                <th className="py-3.5 px-4">{t('orderColCustomer')}</th>
+                <th className="py-3.5 px-4">{t('orderColGateway')}</th>
+                <th className="py-3.5 px-4">{t('orderColAmount')}</th>
+                <th className="py-3.5 px-4">{t('orderColDate')}</th>
+                <th className="py-3.5 px-4">{t('orderColStatus')}</th>
+                <th className="py-3.5 px-4 text-right">{t('orderColActions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-emerald-950/60 text-[#F4F1E8]">
@@ -51,7 +51,7 @@ export default function AdminOrdersPage() {
                     <div className="text-[10px] text-[#A8B0AA]/60 truncate max-w-[140px]">{order.sessionId}</div>
                   </td>
                   <td className="py-4 px-4">
-                    <div className="font-serif font-semibold">{order.customerName || 'Alumno'}</div>
+                    <div className="font-serif font-semibold">{order.customerName || t('colStudent')}</div>
                     <div className="text-[11px] text-[#A8B0AA]">{order.customerEmail}</div>
                   </td>
                   <td className="py-4 px-4">
@@ -74,11 +74,11 @@ export default function AdminOrdersPage() {
                   <td className="py-4 px-4 text-right">
                     <button
                       type="button"
-                      onClick={() => alert(`Enlace de acceso reenviado a ${order.customerEmail}`)}
+                      onClick={() => alert(t('accessResentAlert', { email: order.customerEmail }))}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#0B1F1A] hover:bg-[#064E3B] border border-emerald-900 text-[#F4F1E8] text-[11px] transition-colors"
                     >
                       <RefreshCw className="w-3 h-3 text-[#C7A86A]" />
-                      <span>Reenviar Acceso</span>
+                      <span>{t('resendAccess')}</span>
                     </button>
                   </td>
                 </tr>

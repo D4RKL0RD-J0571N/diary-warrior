@@ -20,7 +20,7 @@ export default function LandingPage() {
             {/* Day 1 Free Callout Banner */}
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/40 px-3.5 py-1 text-xs text-emerald-300 mb-4 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-semibold uppercase tracking-wider">Día 1 Completamente Gratis · Sin Tarjeta</span>
+              <span className="font-semibold uppercase tracking-wider">{t('day1FreeBanner')}</span>
             </div>
 
             {/* Badge */}
@@ -50,7 +50,7 @@ export default function LandingPage() {
                 href="/dashboard/day/1"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm tracking-wide shadow-lg shadow-emerald-900/30 transition-all group"
               >
-                <span>Probar Día 1 Gratis</span>
+                <span>{t('tryDay1Free')}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
 
@@ -58,7 +58,7 @@ export default function LandingPage() {
                 href="/checkout"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-lg bg-[#C7A86A] text-[#0A0D0B] font-bold text-sm tracking-wide hover:bg-[#d8b97c] shadow-lg shadow-[#C7A86A]/10 transition-all group"
               >
-                <span>{t('ctaStart')} (21 Días)</span>
+                <span>{t('ctaStart')} (21 {tCommon('day')}s)</span>
               </Link>
 
               <Link
@@ -66,7 +66,7 @@ export default function LandingPage() {
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg bg-[#0B1F1A] hover:bg-[#064E3B]/70 text-[#F4F1E8] border border-emerald-900/60 text-sm font-medium transition-all"
               >
                 <BookOpen className="w-4 h-4 text-[#C7A86A]" />
-                <span>Ver Cronograma</span>
+                <span>{t('viewSchedule')}</span>
               </Link>
             </div>
 
@@ -74,15 +74,15 @@ export default function LandingPage() {
           <div className="mt-16 grid grid-cols-3 divide-x divide-emerald-950/80 max-w-xl mx-auto border-y border-emerald-950/60 py-4 text-xs text-[#A8B0AA]">
             <div>
               <p className="text-base font-bold text-[#F4F1E8] font-serif">{t('statsStudents')}</p>
-              <p className="text-[11px] text-[#A8B0AA]/70">Comunidad Activa</p>
+              <p className="text-[11px] text-[#A8B0AA]/70">{t('statsStudentsSub')}</p>
             </div>
             <div>
               <p className="text-base font-bold text-[#C7A86A] font-serif">{t('statsRating')}</p>
-              <p className="text-[11px] text-[#A8B0AA]/70">Índice de Claridad</p>
+              <p className="text-[11px] text-[#A8B0AA]/70">{t('statsRatingSub')}</p>
             </div>
             <div>
               <p className="text-base font-bold text-[#F4F1E8] font-serif">{t('statsDays')}</p>
-              <p className="text-[11px] text-[#A8B0AA]/70">Protocolo de 3 Etapas</p>
+              <p className="text-[11px] text-[#A8B0AA]/70">{t('statsDaysSub')}</p>
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs uppercase tracking-widest text-[#C7A86A] font-semibold">
-              Arquitectura Cognitiva
+              {t('cognitiveArchitectureBadge')}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#F4F1E8] mt-2 mb-4">
               {t('pauseMethodTitle')}
@@ -136,7 +136,7 @@ export default function LandingPage() {
       <section className="py-20 md:py-28 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-xl mx-auto mb-16">
           <span className="text-xs uppercase tracking-widest text-[#C7A86A] font-semibold">
-            Plan de Estudio
+            {t('studyPlanBadge')}
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#F4F1E8] mt-2">
             {t('stagesTitle')}
@@ -146,37 +146,37 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="rounded-xl border border-emerald-950/60 bg-[#0B1F1A]/40 p-7 flex flex-col justify-between hover:border-emerald-800/60 transition-all">
             <div>
-              <span className="text-xs font-semibold uppercase text-emerald-400">Días 1 al 7</span>
+              <span className="text-xs font-semibold uppercase text-emerald-400">{t('days1to7')}</span>
               <h3 className="font-serif text-2xl font-bold text-[#F4F1E8] mt-2 mb-4">{t('stage1Title')}</h3>
               <p className="text-sm text-[#A8B0AA] leading-relaxed mb-6">{t('stage1Desc')}</p>
             </div>
             <div className="border-t border-emerald-950/60 pt-4 text-xs text-[#C7A86A]">
-              Foco: Deconstruir el piloto automático
+              {t('stage1Focus')}
             </div>
           </div>
 
           <div className="rounded-xl border border-[#C7A86A]/30 bg-[#0B1F1A]/60 p-7 flex flex-col justify-between relative shadow-lg shadow-emerald-950/30">
             <div className="absolute -top-3 right-6 bg-[#C7A86A] text-[#0A0D0B] text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
-              Punto de Inflexión
+              {t('turningPointBadge')}
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase text-[#C7A86A]">Días 8 al 14</span>
+              <span className="text-xs font-semibold uppercase text-[#C7A86A]">{t('days8to14')}</span>
               <h3 className="font-serif text-2xl font-bold text-[#F4F1E8] mt-2 mb-4">{t('stage2Title')}</h3>
               <p className="text-sm text-[#A8B0AA] leading-relaxed mb-6">{t('stage2Desc')}</p>
             </div>
             <div className="border-t border-emerald-950/60 pt-4 text-xs text-[#C7A86A]">
-              Foco: Habitar la brecha de Frankl
+              {t('stage2Focus')}
             </div>
           </div>
 
           <div className="rounded-xl border border-emerald-950/60 bg-[#0B1F1A]/40 p-7 flex flex-col justify-between hover:border-emerald-800/60 transition-all">
             <div>
-              <span className="text-xs font-semibold uppercase text-emerald-400">Días 15 al 21</span>
+              <span className="text-xs font-semibold uppercase text-emerald-400">{t('days15to21')}</span>
               <h3 className="font-serif text-2xl font-bold text-[#F4F1E8] mt-2 mb-4">{t('stage3Title')}</h3>
               <p className="text-sm text-[#A8B0AA] leading-relaxed mb-6">{t('stage3Desc')}</p>
             </div>
             <div className="border-t border-emerald-950/60 pt-4 text-xs text-[#C7A86A]">
-              Foco: Algoritmos de respuesta inmediata
+              {t('stage3Focus')}
             </div>
           </div>
         </div>
@@ -187,7 +187,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="rounded-2xl border border-[#C7A86A]/40 bg-[#0B1F1A]/90 p-8 sm:p-12 shadow-2xl backdrop-blur-md">
             <span className="text-xs uppercase tracking-widest text-[#C7A86A] font-semibold">
-              Acceso Inmediato
+              {t('immediateAccessBadge')}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#F4F1E8] mt-2 mb-4">
               {t('pricingTitle')}

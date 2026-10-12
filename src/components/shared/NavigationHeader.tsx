@@ -25,7 +25,7 @@ export function NavigationHeader() {
               {t('brand')}
             </span>
             <span className="text-[10px] uppercase tracking-widest text-[#A8B0AA]/70 -mt-1 font-sans">
-              21-Day Academy
+              {t('academySubtitle')}
             </span>
           </div>
         </Link>
@@ -58,13 +58,13 @@ export function NavigationHeader() {
 
           {/* Role testing switcher: only for toggling admin / student testing */}
           <div className="hidden lg:flex items-center border border-emerald-950/60 rounded-full px-2 py-0.5 text-xs bg-[#0B1F1A]">
-            <span className="text-[#A8B0AA] mr-1.5 text-[11px]">Rol:</span>
+            <span className="text-[#A8B0AA] mr-1.5 text-[11px]">{t('roleLabel')}</span>
             <button
               onClick={() => switchUserRole(currentUser?.role === 'ADMIN' ? 'STUDENT' : 'ADMIN')}
               className="text-[#C7A86A] hover:underline font-medium text-xs"
-              title="Alternar entre Alumno y Mentor para verificar permisos y vistas"
+              title={t('roleToggleTitle')}
             >
-              {isAdmin ? 'Mentor (Admin)' : 'Alumno'}
+              {isAdmin ? t('roleMentor') : t('roleStudent')}
             </button>
           </div>
 

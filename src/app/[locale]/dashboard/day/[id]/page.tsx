@@ -117,25 +117,25 @@ export default function DayReflectionPage() {
             <Lock className="w-7 h-7" />
           </div>
           <span className="text-xs font-semibold uppercase tracking-widest text-[#C7A86A]">
-            Contenido Exclusivo · Días 2 al 21
+            {t('paywallBadge')}
           </span>
           <h2 className="font-serif text-3xl font-bold text-[#F4F1E8] mt-2 mb-3">
-            Desbloquea el Protocolo Completo
+            {t('paywallTitle')}
           </h2>
           <p className="text-sm text-[#A8B0AA] leading-relaxed mb-6">
-            Has completado o alcanzado el límite del Día 1 de prueba gratuita. Para continuar reprogramando tus patrones cognitivos con los días 2 al 21, retroalimentación del mentor y acceso vitalicio, adquiere tu pase oficial.
+            {t('paywallDesc')}
           </p>
 
           <div className="rounded-xl border border-emerald-950 bg-[#064E3B]/20 p-4 mb-6 text-left">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-semibold text-[#F4F1E8]">La Mente del Guerrero (21 Días)</span>
-              <span className="font-serif text-lg font-bold text-[#C7A86A]">$47 USD</span>
+              <span className="text-sm font-semibold text-[#F4F1E8]">{t('paywallProductName')}</span>
+              <span className="font-serif text-lg font-bold text-[#C7A86A]">{t('paywallPrice')}</span>
             </div>
             <ul className="text-xs text-[#A8B0AA] space-y-1.5 list-disc list-inside">
-              <li>Acceso completo a los 21 días interactivos</li>
-              <li>Sincronización en la nube y guardado automático</li>
-              <li>Acompañamiento y notas privadas del mentor</li>
-              <li>Pago único mediante PayPal seguro</li>
+              <li>{t('paywallFeature1')}</li>
+              <li>{t('paywallFeature2')}</li>
+              <li>{t('paywallFeature3')}</li>
+              <li>{t('paywallFeature4')}</li>
             </ul>
           </div>
 
@@ -144,14 +144,14 @@ export default function DayReflectionPage() {
               href="/checkout"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#0070BA] hover:bg-[#005ea6] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#0070BA]/20 transition-all"
             >
-              <span>Desbloquear con PayPal</span>
+              <span>{t('paywallBtnPayPal')}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/dashboard/day/1"
               className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3.5 rounded-xl border border-emerald-950 bg-[#0A0D0B] hover:bg-[#064E3B]/30 text-xs text-[#A8B0AA] transition-all"
             >
-              Volver al Día 1 Gratis
+              {t('paywallBtnBackFree')}
             </Link>
           </div>
         </div>
@@ -168,7 +168,7 @@ export default function DayReflectionPage() {
           className="inline-flex items-center gap-1.5 text-xs text-[#A8B0AA] hover:text-[#C7A86A] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Volver al Cronograma</span>
+          <span>{t('backToTimeline')}</span>
         </Link>
 
         <div className="flex items-center gap-3">
@@ -304,7 +304,7 @@ export default function DayReflectionPage() {
               rows={4}
               value={answers.exercise || ''}
               onChange={(e) => handleFieldChange('exercise', e.target.value)}
-              placeholder="Documenta aquí la ejecución de tu ejercicio..."
+              placeholder={t('exerciseDocPlaceholder')}
               className="w-full rounded-lg border border-emerald-950 bg-[#0A0D0B] p-3 text-sm text-[#F4F1E8] focus:border-[#C7A86A] focus:outline-none transition-colors"
             />
           </div>
@@ -339,7 +339,7 @@ export default function DayReflectionPage() {
           {/* Signature row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-emerald-950/80">
             <div>
-              <span className="text-[10px] uppercase font-bold text-[#A8B0AA] block mb-1">Firma / Nombre</span>
+              <span className="text-[10px] uppercase font-bold text-[#A8B0AA] block mb-1">{t('sigName')}</span>
               <input
                 type="text"
                 value={answers.sig_name || ''}
@@ -348,7 +348,7 @@ export default function DayReflectionPage() {
               />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-[#A8B0AA] block mb-1">Fecha</span>
+              <span className="text-[10px] uppercase font-bold text-[#A8B0AA] block mb-1">{t('sigDate')}</span>
               <input
                 type="date"
                 value={answers.sig_date || ''}
@@ -357,7 +357,7 @@ export default function DayReflectionPage() {
               />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-[#A8B0AA] block mb-1">Hora</span>
+              <span className="text-[10px] uppercase font-bold text-[#A8B0AA] block mb-1">{t('sigTime')}</span>
               <input
                 type="time"
                 value={answers.sig_time || ''}

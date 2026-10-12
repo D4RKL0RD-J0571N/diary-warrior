@@ -52,7 +52,7 @@ export default function StudentInspectionPage() {
     await addMentorFeedback(student.id, selectedDay, feedbackInput);
     setFeedbackInput('');
     setSubmittingFeedback(false);
-    alert('Orientación enviada con éxito al alumno.');
+    alert(t('feedbackSentAlert'));
   };
 
   const handleSavePrivateNote = async () => {
@@ -61,7 +61,7 @@ export default function StudentInspectionPage() {
     await addPrivateNote(student.id, privateNoteInput);
     setPrivateNoteInput('');
     setSubmittingNote(false);
-    alert('Nota interna guardada con éxito.');
+    alert(t('noteSavedAlert'));
   };
 
   return (
@@ -73,7 +73,7 @@ export default function StudentInspectionPage() {
           className="inline-flex items-center gap-1.5 text-xs text-[#A8B0AA] hover:text-[#C7A86A] transition-colors mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Volver al Directorio de Alumnos</span>
+          <span>{t('tabsStudents')}</span>
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -85,7 +85,7 @@ export default function StudentInspectionPage() {
                 {student.name}
               </h1>
               <p className="text-xs text-[#A8B0AA]">
-                {student.email} · Idioma: <span className="text-[#C7A86A] font-bold">{student.preferredLanguage.toUpperCase()}</span> · Día actual: {student.progress.currentDay}/21
+                {student.email} · {t('colLang')}: <span className="text-[#C7A86A] font-bold">{student.preferredLanguage.toUpperCase()}</span> · {t('colCurrentDay')}: {student.progress.currentDay}/21
               </p>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function StudentInspectionPage() {
           {/* Day Selector Buttons */}
           <div className="rounded-xl border border-emerald-950/80 bg-[#0B1F1A]/60 p-4">
             <span className="text-xs font-semibold uppercase text-[#A8B0AA] block mb-3">
-              Seleccionar Día para Inspeccionar:
+              {t('selectDayInspect')}
             </span>
             <div className="flex flex-wrap gap-2">
               {Array.from({ length: 21 }, (_, i) => i + 1).map(dayNum => {
@@ -129,7 +129,7 @@ export default function StudentInspectionPage() {
             <div className="flex items-center justify-between border-b border-emerald-950/80 pb-4">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-[#C7A86A]">
-                  Inspección Día {selectedDay}
+                  {t('inspectDayTitle', { day: selectedDay })}
                 </span>
                 <h3 className="font-serif text-xl font-bold text-[#F4F1E8] mt-1">
                   {selectedDayData.title}
@@ -138,12 +138,12 @@ export default function StudentInspectionPage() {
               {student.progress.completedDays.includes(selectedDay) ? (
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-800">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  Completado
+                  {t('statusCompleted')}
                 </span>
               ) : (
                 <span className="text-xs text-[#A8B0AA] flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5" />
-                  Pendiente
+                  {t('statusPending')}
                 </span>
               )}
             </div>
@@ -151,12 +151,12 @@ export default function StudentInspectionPage() {
             {/* Questions & Student Raw Answers */}
             <div className="space-y-4">
               <h4 className="text-xs uppercase font-bold text-[#A8B0AA] tracking-wider">
-                Respuestas del Alumno a las Preguntas de Autoindagación:
+                {t('answersTitle')}
               </h4>
 
               {selectedDayData.questions.map((qObj, idx) => {
                 const key = `q${idx}`;
-                const ans = studentEntry?.responses?.[key] || 'Sin respuesta registrada aún.';
+                const ans = studentEntry?.responses?.[key] || t('noAnswerYet');
                 return (
                   <div key={idx} className="rounded-lg border border-emerald-950 bg-[#0A0D0B] p-4">
                     <p className="text-xs font-semibold text-[#C7A86A] mb-1">
@@ -172,24 +172,24 @@ export default function StudentInspectionPage() {
               {/* Exercise Drill Output */}
               <div className="rounded-lg border border-emerald-950 bg-[#0A0D0B] p-4">
                 <p className="text-xs font-semibold text-[#C7A86A] mb-1">
-                  Ejercicio: {selectedDayData.exerciseTitle}
+                  {selectedDayData.exerciseTitle}
                 </p>
                 <p className="text-xs text-[#F4F1E8] leading-relaxed italic">
-                  "{studentEntry?.responses?.exercise || 'Ejercicio sin documentar aún.'}"
+                  "{studentEntry?.responses?.exercise || t('exerciseNoDoc')}"
                 </p>
               </div>
 
               {/* Daily Commitment */}
               <div className="rounded-lg border border-emerald-950 bg-[#0A0D0B] p-4">
                 <p className="text-xs font-semibold text-[#C7A86A] mb-1">
-                  Compromiso No Negociable:
+                  {t('commitmentNone')}:
                 </p>
                 <p className="text-xs text-[#F4F1E8] leading-relaxed italic">
-                  "{studentEntry?.responses?.commitment || 'Compromiso no registrado.'}"
+                  "{studentEntry?.responses?.commitment || t('commitmentNone')}"
                 </p>
                 {studentEntry?.responses?.sig_name && (
                   <p className="text-[10px] text-[#A8B0AA] mt-2">
-                    Firmado por: {studentEntry.responses.sig_name} · {studentEntry.responses.sig_date}
+                    {t('signedBy', { name: studentEntry.responses.sig_name, date: studentEntry.responses.sig_date })}
                   </p>
                 )}
               </div>
