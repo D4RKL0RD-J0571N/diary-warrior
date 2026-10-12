@@ -1,5 +1,7 @@
 -- =================================================================================
--- LA MENTE DEL GUERRERO — FIX USER_PROGRESS & REGISTER JAFETH AS ADMIN (COMPATIBLE)
+-- LA MENTE DEL GUERRERO — REGISTRAR A JAFETH CON SUS CREDENCIALES EXACTAS
+-- Email: jafeth.empresarial@gmail.com
+-- Password: jafethjls5
 -- =================================================================================
 
 -- 1. Asegurar que las columnas existan en public.user_progress
@@ -16,7 +18,7 @@ ALTER TABLE public.user_progress
     ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
 
 
--- 2. Actualizar el trigger function handle_new_user de forma 100% segura
+-- 2. Asegurar el trigger function handle_new_user
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -49,13 +51,13 @@ REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM authenticated;
 
 
--- 3. Provisionar a Jafeth con provider_id y esquema moderno de auth.identities
+-- 3. Crear o actualizar a Jafeth con su contraseña elegida
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 DO $$
 DECLARE
-    admin_email TEXT := 'jafeth.empresarial@gmail.com'; -- Tu correo de Jafeth
-    admin_password TEXT := 'Guerrero2026!';             -- Contraseña para iniciar sesión
+    admin_email TEXT := 'jafeth.empresarial@gmail.com';
+    admin_password TEXT := 'jafethjls5';
     admin_name TEXT := 'Jafeth López (Mentor)';
     admin_uid UUID;
 BEGIN
@@ -90,9 +92,6 @@ BEGIN
             'authenticated'
         );
 
-        -- En versiones recientes de Supabase, auth.identities requiere:
-        -- provider_id (que es el ID o email del usuario en el proveedor de auth)
-        -- e id (UUID de la identidad)
         INSERT INTO auth.identities (
             id,
             user_id,
@@ -107,12 +106,13 @@ BEGIN
             admin_uid,
             jsonb_build_object('sub', admin_uid, 'email', admin_email),
             'email',
-            admin_uid::text, -- provider_id requerido por Supabase GoTrue
+            admin_uid::text,
             now(),
             now(),
             now()
         );
     ELSE
+        -- Si ya existía, actualizarle la contraseña inmediatamente y asignarle el rol
         UPDATE auth.users
         SET encrypted_password = crypt(admin_password, gen_salt('bf')),
             raw_user_meta_data = jsonb_build_object('name', admin_name, 'role', 'ADMIN'),
@@ -120,7 +120,7 @@ BEGIN
         WHERE id = admin_uid;
     END IF;
 
-    -- Asegurar que el perfil tenga rol ADMIN
+    -- Asegurar registro en public.profiles con rol ADMIN
     INSERT INTO public.profiles (
         id,
         email,
@@ -149,10 +149,10 @@ BEGIN
         updated_at = now()
     WHERE email = admin_email;
 
-    -- Asegurar acceso total pagado en user_progress
+    -- Asegurar acceso completo y estatus pagado en user_progress
     INSERT INTO public.user_progress (user_id, current_day, completed_days, completed_days_count, is_paid)
     VALUES (admin_uid, 1, '{}', 0, true)
     ON CONFLICT (user_id) DO UPDATE SET is_paid = true;
 
-    RAISE NOTICE 'Mentor Admin % provisionado exitosamente con ID %', admin_email, admin_uid;
+    RAISE NOTICE '¡Mentor Admin % creado/actualizado con éxito!', admin_email;
 END $$;
