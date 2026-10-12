@@ -40,19 +40,20 @@ export async function POST(req: Request) {
     const supabase = getSupabaseAdmin();
     if (supabase && customerEmail) {
       try {
-        // 1. Record order in orders table if exists
+        // 1. Record order in orders table
         await supabase.from('orders').upsert({
           stripe_session_id: sessionId,
-          email: customerEmail,
+          customer_email: customerEmail,
+          customer_name: customerName,
           amount: amount,
           currency: currency,
           status: 'COMPLETED',
           created_at: new Date().toISOString()
         }, { onConflict: 'stripe_session_id' });
 
-        // 2. Grant paid status to user
+        // 2. Grant paid status to user if profile exists
         const { data: user } = await supabase
-          .from('users')
+          .from('profiles')
           .select('id')
           .eq('email', customerEmail)
           .single();
