@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserProfile, UserProgressRecord, JournalEntryRecord, MentorFeedbackRecord, OrderRecord } from '@/types/database';
+import { UserProfile, UserProgressRecord, JournalEntryRecord, MentorFeedbackRecord, OrderRecord, Locale } from '@/types/database';
 import { INITIAL_STUDENTS, INITIAL_JOURNAL_ENTRIES, INITIAL_MENTOR_FEEDBACK } from '@/data/mockStore';
 
 interface AppContextType {
@@ -12,6 +12,9 @@ interface AppContextType {
   allStudents: (UserProfile & { progress: UserProgressRecord; order: OrderRecord })[];
   isSaving: boolean;
   lastSavedAt: string | null;
+  isEditMode: boolean;
+  toggleEditMode: () => void;
+  updateTranslation: (locale: Locale, keyPath: string, newValue: string) => Promise<boolean>;
   setCurrentUser: (user: UserProfile | null) => void;
   saveJournalEntry: (dayNumber: number, responses: Record<string, string>, isCompleted?: boolean) => Promise<void>;
   markDayAsCompleted: (dayNumber: number) => Promise<void>;
@@ -63,6 +66,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [feedbackList, setFeedbackList] = useState<MentorFeedbackRecord[]>(INITIAL_MENTOR_FEEDBACK);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Sync entries and progress with localStorage if available for persistence across browser reloads
   useEffect(() => {
@@ -79,10 +83,38 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (storedFeedback) {
         setFeedbackList(JSON.parse(storedFeedback));
       }
+      const storedEditMode = localStorage.getItem('warrior_edit_mode');
+      if (storedEditMode === 'true') {
+        setIsEditMode(true);
+      }
     } catch (e) {
       // LocalStorage quiet fallback
     }
   }, []);
+
+  const toggleEditMode = () => {
+    setIsEditMode(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem('warrior_edit_mode', String(next));
+      } catch (e) {}
+      return next;
+    });
+  };
+
+  const updateTranslation = async (locale: Locale, keyPath: string, newValue: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/translations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locale, keyPath, value: newValue })
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Failed to update translation:', e);
+      return false;
+    }
+  };
 
   const saveJournalEntry = async (dayNumber: number, responses: Record<string, string>, isCompleted = false) => {
     setIsSaving(true);
@@ -229,6 +261,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         allStudents: studentsList,
         isSaving,
         lastSavedAt,
+        isEditMode,
+        toggleEditMode,
+        updateTranslation,
         setCurrentUser,
         saveJournalEntry,
         markDayAsCompleted,

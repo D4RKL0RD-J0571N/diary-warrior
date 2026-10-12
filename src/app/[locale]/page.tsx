@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { EditableText } from '@/components/shared/EditableText';
 import { Shield, Brain, Sparkles, CheckCircle2, ArrowRight, Activity, BookOpen, Compass, Award } from 'lucide-react';
 
 export default function LandingPage() {
@@ -25,15 +26,17 @@ export default function LandingPage() {
 
           {/* Heading */}
           <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#F4F1E8] leading-[1.08] mb-6">
-            <span className="block text-[#A8B0AA]">{t('heroTitle1')}</span>
+            <span className="block text-[#A8B0AA]">
+              <EditableText translationKey="landing.heroTitle1" defaultText={t('heroTitle1')} as="span" />
+            </span>
             <span className="block bg-gradient-to-r from-[#F4F1E8] via-[#C7A86A] to-[#F4F1E8] bg-clip-text text-transparent">
-              {t('heroTitle2')}
+              <EditableText translationKey="landing.heroTitle2" defaultText={t('heroTitle2')} as="span" />
             </span>
           </h1>
 
           {/* Subtitle */}
           <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#A8B0AA] leading-relaxed mb-10 font-sans">
-            {t('heroSubtitle')}
+            <EditableText translationKey="landing.heroSubtitle" defaultText={t('heroSubtitle')} as="span" multiline />
           </p>
 
           {/* Action CTAs */}
