@@ -7,6 +7,8 @@ import { Footer } from "@/components/shared/Footer";
 import { notFound } from "next/navigation";
 import { locales, Locale } from "@/types/database";
 import { NextIntlClientProvider } from 'next-intl';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import esMessages from '../../../messages/es.json';
 import enMessages from '../../../messages/en.json';
 
@@ -144,6 +146,8 @@ export default async function LocaleLayout({
             <Footer />
           </AppProvider>
         </NextIntlClientProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
