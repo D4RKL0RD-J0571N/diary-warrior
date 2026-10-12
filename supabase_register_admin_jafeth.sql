@@ -1,23 +1,66 @@
 -- =================================================================================
--- LA MENTE DEL GUERRERO — PROVISIONING JAFETH COMO ADMIN / MENTOR
--- Ejecuta este script en el SQL Editor de Supabase
+-- LA MENTE DEL GUERRERO — FIX USER_PROGRESS TABLE & REGISTER JAFETH AS ADMIN
 -- =================================================================================
 
--- 1. Habilitar extensión pgcrypto para hashing de contraseñas de auth si se requiere
+-- 1. Asegurar que las columnas existan en public.user_progress
+ALTER TABLE public.user_progress 
+    ADD COLUMN IF NOT EXISTS completed_days_count INT NOT NULL DEFAULT 0;
+
+ALTER TABLE public.user_progress 
+    ADD COLUMN IF NOT EXISTS is_completed BOOLEAN NOT NULL DEFAULT false;
+
+ALTER TABLE public.user_progress 
+    ADD COLUMN IF NOT EXISTS last_active_at TIMESTAMPTZ NOT NULL DEFAULT now();
+
+ALTER TABLE public.user_progress 
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
+
+
+-- 2. Actualizar el trigger function handle_new_user de forma 100% segura y resiliente
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    INSERT INTO public.profiles (id, email, name, role, preferred_language)
+    VALUES (
+        new.id,
+        new.email,
+        COALESCE(new.raw_user_meta_data->>'name', split_part(new.email, '@', 1)),
+        COALESCE((new.raw_user_meta_data->>'role')::public.user_role, 'STUDENT'::public.user_role),
+        'es'
+    )
+    ON CONFLICT (id) DO UPDATE SET
+        role = EXCLUDED.role,
+        name = EXCLUDED.name;
+
+    INSERT INTO public.user_progress (user_id, current_day, completed_days, completed_days_count, is_paid)
+    VALUES (new.id, 1, '{}', 0, (new.raw_user_meta_data->>'role' = 'ADMIN'))
+    ON CONFLICT (user_id) DO NOTHING;
+
+    RETURN new;
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM authenticated;
+
+
+-- 3. Provisionar a Jafeth en auth.users y public.profiles
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- 2. Declarar correo y contraseña deseada para Jafeth
 DO $$
 DECLARE
-    admin_email TEXT := 'jafeth.mentor@warriorsmind.com'; -- Puedes cambiar este correo por el de Jafeth
-    admin_password TEXT := 'Guerrero2026!';               -- Contraseña inicial para Jafeth (cámbiala si gustas)
+    admin_email TEXT := 'jafeth.mentor@warriorsmind.com'; -- Puedes cambiar el correo si gustas
+    admin_password TEXT := 'Guerrero2026!';               -- Contraseña para iniciar sesión
     admin_name TEXT := 'Jafeth López (Mentor)';
     admin_uid UUID;
 BEGIN
-    -- Verificar si el usuario ya existe en auth.users
     SELECT id INTO admin_uid FROM auth.users WHERE email = admin_email;
 
-    -- Si no existe en auth.users, crearlo con contraseña encriptada
     IF admin_uid IS NULL THEN
         admin_uid := gen_random_uuid();
 
@@ -47,7 +90,6 @@ BEGIN
             'authenticated'
         );
 
-        -- Crear también la identidad de email en auth.identities para compatibilidad total con Supabase GoTrue
         INSERT INTO auth.identities (
             id,
             user_id,
@@ -66,7 +108,6 @@ BEGIN
             now()
         );
     ELSE
-        -- Si ya existía, actualizar contraseña y metadata
         UPDATE auth.users
         SET encrypted_password = crypt(admin_password, gen_salt('bf')),
             raw_user_meta_data = jsonb_build_object('name', admin_name, 'role', 'ADMIN'),
@@ -74,7 +115,7 @@ BEGIN
         WHERE id = admin_uid;
     END IF;
 
-    -- 3. Asegurar que en public.profiles esté registrado con rol ADMIN
+    -- Asegurar perfil con rol ADMIN
     INSERT INTO public.profiles (
         id,
         email,
@@ -97,12 +138,16 @@ BEGIN
         name = admin_name,
         updated_at = now();
 
-    -- También por si hay conflicto por email
     UPDATE public.profiles
     SET role = 'ADMIN',
         name = admin_name,
         updated_at = now()
     WHERE email = admin_email;
+
+    -- Asegurar acceso completo en user_progress
+    INSERT INTO public.user_progress (user_id, current_day, completed_days, completed_days_count, is_paid)
+    VALUES (admin_uid, 1, '{}', 0, true)
+    ON CONFLICT (user_id) DO UPDATE SET is_paid = true;
 
     RAISE NOTICE 'Mentor Admin % provisionado exitosamente con ID %', admin_email, admin_uid;
 END $$;
