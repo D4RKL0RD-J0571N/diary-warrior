@@ -3,7 +3,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { useAppStore } from '@/context/AppStoreContext';
-import { User, Download, FileText, CheckCircle2, Globe, Shield } from 'lucide-react';
+import { User, Download, FileText, CheckCircle2, Globe, Shield, RotateCcw } from 'lucide-react';
 
 export default function StudentProfilePage() {
   const tCommon = useTranslations('common');
@@ -118,6 +118,21 @@ export default function StudentProfilePage() {
           >
             <FileText className="w-4 h-4" />
             <span>Imprimir / Guardar en PDF</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm('¿Deseas reiniciar tu progreso al Día 1 (progreso en cero)?')) {
+                localStorage.removeItem('warrior_journal_entries');
+                localStorage.removeItem('warrior_user_progress');
+                window.location.reload();
+              }
+            }}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#0A0D0B] hover:bg-rose-950/40 text-rose-300 border border-rose-900/40 text-xs font-semibold uppercase tracking-wider transition-all"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reiniciar al Día 1 (Cero Progreso)</span>
           </button>
         </div>
       </div>

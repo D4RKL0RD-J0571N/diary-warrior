@@ -38,14 +38,14 @@ const defaultProgress: UserProgressRecord = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  // Current user (defaults to Demo Student)
+  // Current user (fresh student with Day 1 start)
   const [currentUser, setCurrentUser] = useState<UserProfile | null>({
-    id: 'user-student-1',
-    email: 'carlos.mendoza@example.com',
-    name: 'Carlos Mendoza',
+    id: 'user-student-new',
+    email: 'nuevo.guerrero@example.com',
+    name: 'Nuevo Guerrero',
     role: 'STUDENT',
     preferredLanguage: 'es',
-    createdAt: '2026-03-20T10:00:00Z',
+    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
 
@@ -240,12 +240,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       });
     } else {
       setCurrentUser({
-        id: 'user-student-1',
-        email: 'carlos.mendoza@example.com',
-        name: 'Carlos Mendoza',
+        id: 'user-student-new',
+        email: 'nuevo.guerrero@example.com',
+        name: 'Nuevo Guerrero',
         role: 'STUDENT',
         preferredLanguage: 'es',
-        createdAt: '2026-03-20T10:00:00Z',
+        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
     }
