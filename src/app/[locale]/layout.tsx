@@ -38,12 +38,43 @@ export async function generateMetadata({
 
   return {
     metadataBase: new URL(baseUrl),
-    title: isEs
-      ? "La Mente del Guerrero — Diario de 21 Días & Academia de Reprogramación Mental"
-      : "The Warrior's Mind — 21-Day Mental Reprogramming Journal & Coaching CRM",
+    title: {
+      default: isEs
+        ? "La Mente del Guerrero — Diario de 21 Días & Academia de Reprogramación Mental"
+        : "The Warrior's Mind — 21-Day Mental Reprogramming Journal & Coaching CRM",
+      template: isEs ? "%s | La Mente del Guerrero" : "%s | The Warrior's Mind",
+    },
     description: isEs
-      ? "21 días para destruir tu viejo piloto automático y construir arquitectura mental de alto rendimiento con el Método PAUSA."
-      : "21 days to dismantle your old autopilot and forge high-performance cognitive architecture through the PAUSE methodology.",
+      ? "21 días para destruir tu viejo piloto automático y construir arquitectura mental de alto rendimiento con el Método PAUSA. Día 1 de prueba gratis."
+      : "21 days to dismantle your old autopilot and forge high-performance cognitive architecture through the PAUSE methodology. Day 1 free trial.",
+    keywords: isEs
+      ? [
+          "reprogramación mental",
+          "la mente del guerrero",
+          "método pausa",
+          "diario de 21 días",
+          "arquitectura cognitiva",
+          "desarrollo personal",
+          "disciplina mental",
+          "hábitos de alto rendimiento",
+          "mentoría cognitiva",
+          "jafeth lopez",
+        ]
+      : [
+          "mental reprogramming",
+          "the warrior's mind",
+          "pause method",
+          "21 day journal",
+          "cognitive architecture",
+          "personal development",
+          "mental discipline",
+          "high performance habits",
+          "coaching CRM",
+          "jafeth lopez",
+        ],
+    authors: [{ name: "Jafeth López", url: baseUrl }],
+    creator: "Jafeth López",
+    publisher: "La Mente del Guerrero",
     alternates: {
       canonical: `/${locale}`,
       languages: {
@@ -52,15 +83,34 @@ export async function generateMetadata({
       },
     },
     openGraph: {
-      title: isEs ? "La Mente del Guerrero" : "The Warrior's Mind",
+      title: isEs ? "La Mente del Guerrero — Diario de 21 Días" : "The Warrior's Mind — 21-Day Journal",
       description: isEs
-        ? "Diario interactivo de 21 días y mentoría directa."
-        : "21-day interactive journal and direct coaching platform.",
-      url: baseUrl,
+        ? "Destruye quien fuiste. Construye quien serás. Diario interactivo de 21 días y mentoría activa."
+        : "Dismantle your old autopilot. Build who you will be. 21-day interactive journal and coaching platform.",
+      url: `${baseUrl}/${locale}`,
       siteName: "La Mente del Guerrero",
-      type: 'website',
       locale: isEs ? 'es_ES' : 'en_US',
-    }
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: isEs ? "La Mente del Guerrero — Diario de 21 Días" : "The Warrior's Mind — 21-Day Journal",
+      description: isEs
+        ? "21 días para construir arquitectura mental de alto rendimiento con el Método PAUSA."
+        : "21 days to forge high-performance cognitive architecture with the PAUSE method.",
+      creator: '@lamentedelguerrero',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
   };
 }
 
