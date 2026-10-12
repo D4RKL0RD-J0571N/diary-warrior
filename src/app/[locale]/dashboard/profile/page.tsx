@@ -1,0 +1,126 @@
+'use client';
+
+import React from 'react';
+import { useTranslations } from 'next-intl';
+import { useAppStore } from '@/context/AppStoreContext';
+import { User, Download, FileText, CheckCircle2, Globe, Shield } from 'lucide-react';
+
+export default function StudentProfilePage() {
+  const tCommon = useTranslations('common');
+  const { currentUser, progress, journalEntries } = useAppStore();
+
+  const handleExportJSON = () => {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({
+      user: currentUser,
+      progress,
+      entries: journalEntries,
+      exportedAt: new Date().toISOString()
+    }, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `diario-guerrero-${currentUser?.name || 'alumno'}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  const handlePrintPDF = () => {
+    window.print();
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+      <div className="mb-8">
+        <span className="text-xs font-semibold uppercase tracking-widest text-[#C7A86A]">
+          Configuración & Exportación
+        </span>
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#F4F1E8] mt-1 mb-2">
+          Perfil del Guerrero
+        </h1>
+        <p className="text-xs text-[#A8B0AA]">
+          Gestiona tu cuenta, tus preferencias y descarga tu archivo de reflexiones.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {/* User Card */}
+        <div className="rounded-xl border border-emerald-950/80 bg-[#0B1F1A]/60 p-6 flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full bg-[#064E3B] border border-[#C7A86A]/40 flex items-center justify-center">
+              <User className="w-6 h-6 text-[#C7A86A]" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg font-bold text-[#F4F1E8]">{currentUser?.name}</h3>
+              <p className="text-xs text-[#A8B0AA]">{currentUser?.email}</p>
+            </div>
+          </div>
+          <div className="border-t border-emerald-950/80 pt-4 text-xs text-[#A8B0AA] space-y-1">
+            <p>Rol: <span className="text-[#C7A86A] font-semibold">{currentUser?.role}</span></p>
+            <p>Idioma Preferido: <span className="text-[#F4F1E8] font-semibold">{currentUser?.preferredLanguage.toUpperCase()}</span></p>
+          </div>
+        </div>
+
+        {/* Progress Card */}
+        <div className="rounded-xl border border-emerald-950/80 bg-[#0B1F1A]/60 p-6 flex flex-col justify-between">
+          <div>
+            <span className="text-xs font-semibold uppercase text-emerald-400">Progreso Total</span>
+            <div className="mt-2 flex items-baseline gap-2">
+              <span className="text-4xl font-serif font-bold text-[#F4F1E8]">
+                {progress.completedDays.length}
+              </span>
+              <span className="text-sm text-[#A8B0AA]">/ 21 Días</span>
+            </div>
+          </div>
+          <div className="border-t border-emerald-950/80 pt-4 text-xs text-[#A8B0AA]">
+            Estado de Cuenta: <span className="text-emerald-400 font-semibold">{progress.isPaid ? 'Acceso Vitalicio Activo' : 'Prueba'}</span>
+          </div>
+        </div>
+
+        {/* Cloud Sync Status */}
+        <div className="rounded-xl border border-emerald-950/80 bg-[#0B1F1A]/60 p-6 flex flex-col justify-between">
+          <div>
+            <span className="text-xs font-semibold uppercase text-[#C7A86A]">Sincronización Cloud</span>
+            <div className="mt-2 flex items-center gap-2 text-emerald-400 text-sm font-medium">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Conexión Segura Activa</span>
+            </div>
+            <p className="text-[11px] text-[#A8B0AA] mt-2">
+              Todas tus respuestas se respaldan en tiempo real.
+            </p>
+          </div>
+          <div className="border-t border-emerald-950/80 pt-4 text-[11px] text-[#A8B0AA]">
+            Última Actividad: {new Date(progress.lastActiveAt).toLocaleDateString()}
+          </div>
+        </div>
+      </div>
+
+      {/* Export Options */}
+      <div className="rounded-2xl border border-[#C7A86A]/30 bg-[#064E3B]/20 p-8 shadow-xl">
+        <h2 className="font-serif text-2xl font-bold text-[#F4F1E8] mb-2">Exportar Mis Reflexiones</h2>
+        <p className="text-xs sm:text-sm text-[#A8B0AA] mb-6 leading-relaxed">
+          Tu trabajo interno te pertenece. Puedes generar una copia digital en formato JSON estructurado o imprimir directamente la vista para guardarla como PDF editorial.
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <button
+            type="button"
+            onClick={handleExportJSON}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-[#0B1F1A] hover:bg-[#064E3B]/80 text-[#F4F1E8] border border-emerald-800/60 text-xs font-semibold uppercase tracking-wider transition-all"
+          >
+            <Download className="w-4 h-4 text-[#C7A86A]" />
+            <span>Descargar Archivo JSON</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePrintPDF}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-[#C7A86A] text-[#0A0D0B] font-bold text-xs uppercase tracking-wider hover:bg-[#d8b97c] transition-all"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Imprimir / Guardar en PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

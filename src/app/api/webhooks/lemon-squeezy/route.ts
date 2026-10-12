@@ -73,6 +73,10 @@ export async function POST(request: NextRequest) {
 
     // Grant access via Supabase service client (bypasses RLS)
     const supabase = createServiceClient();
+    if (!supabase) {
+      console.warn("Supabase credentials not available for lemon squeezy sync");
+      return NextResponse.json({ success: true, user_id: userId, note: "db_unconfigured" });
+    }
     const { error } = await supabase.rpc("grant_paid_access", {
       p_user_id: userId,
     });

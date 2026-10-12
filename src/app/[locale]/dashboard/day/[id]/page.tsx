@@ -1,0 +1,336 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
+import { Link, useRouter } from '@/i18n/routing';
+import { useAppStore } from '@/context/AppStoreContext';
+import { getCurriculumDay } from '@/data/curriculumData';
+import { Locale } from '@/types/database';
+import confetti from 'canvas-confetti';
+import {
+  Shield,
+  CheckCircle2,
+  Save,
+  ArrowLeft,
+  ArrowRight,
+  Sparkles,
+  BookOpen,
+  HelpCircle,
+  PenTool,
+  Clock,
+  MessageSquare
+} from 'lucide-react';
+
+export default function DayReflectionPage() {
+  const params = useParams();
+  const router = useRouter();
+  const dayId = Number(params.id) || 1;
+  const t = useTranslations('day');
+  const tCommon = useTranslations('common');
+  const locale = useLocale() as Locale;
+
+  const {
+    progress,
+    journalEntries,
+    saveJournalEntry,
+    markDayAsCompleted,
+    mentorFeedback,
+    isSaving,
+    lastSavedAt,
+    currentUser
+  } = useAppStore();
+
+  const dayData = getCurriculumDay(dayId, locale);
+  const existingEntry = journalEntries[dayId];
+
+  // Local state for answers
+  const [answers, setAnswers] = useState<Record<string, string>>({
+    q0: '',
+    q1: '',
+    q2: '',
+    q3: '',
+    exercise: '',
+    commitment: '',
+    sig_name: currentUser?.name || '',
+    sig_date: new Date().toISOString().split('T')[0],
+    sig_time: new Date().toTimeString().split(' ')[0].slice(0, 5)
+  });
+
+  // Populate from existing entry
+  useEffect(() => {
+    if (existingEntry?.responses) {
+      setAnswers(prev => ({ ...prev, ...existingEntry.responses }));
+    }
+  }, [dayId, existingEntry]);
+
+  // Specific mentor notes for this day
+  const dayFeedback = mentorFeedback.find(
+    f => (f.userId === currentUser?.id || f.userId === 'user-student-1') && f.dayNumber === dayId
+  );
+
+  const handleFieldChange = (key: string, val: string) => {
+    setAnswers(prev => {
+      const next = { ...prev, [key]: val };
+      return next;
+    });
+  };
+
+  const handleManualSave = async () => {
+    await saveJournalEntry(dayId, answers, false);
+  };
+
+  const handleCompleteDay = async () => {
+    await saveJournalEntry(dayId, answers, true);
+    await markDayAsCompleted(dayId);
+
+    // Fire celebratory confetti
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#C7A86A', '#064E3B', '#10B981', '#F4F1E8']
+    });
+
+    if (dayId < 21) {
+      setTimeout(() => {
+        router.push(`/dashboard/day/${dayId + 1}`);
+      }, 1200);
+    } else {
+      setTimeout(() => {
+        router.push('/dashboard/profile');
+      }, 1200);
+    }
+  };
+
+  const isCompleted = progress.completedDays.includes(dayId) || existingEntry?.isCompleted;
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+      {/* Top Navigation Bar */}
+      <div className="flex items-center justify-between mb-8 pb-4 border-b border-emerald-950/60">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1.5 text-xs text-[#A8B0AA] hover:text-[#C7A86A] transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Volver al Cronograma</span>
+        </Link>
+
+        <div className="flex items-center gap-3">
+          {isSaving ? (
+            <span className="text-xs text-[#C7A86A] flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5 animate-spin" />
+              <span>{tCommon('saving')}</span>
+            </span>
+          ) : lastSavedAt ? (
+            <span className="text-[11px] text-emerald-400/80 flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>{tCommon('saved')}</span>
+            </span>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={handleManualSave}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0B1F1A] hover:bg-[#064E3B]/70 text-[#F4F1E8] border border-emerald-900/60 text-xs font-medium transition-all"
+          >
+            <Save className="w-3.5 h-3.5 text-[#C7A86A]" />
+            <span>{t('saveDraft')}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Header Title & Quote */}
+      <div className="mb-10">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#C7A86A]">
+            Día {dayId} · {dayData.stageName}
+          </span>
+          {isCompleted && (
+            <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-800">
+              <CheckCircle2 className="w-3 h-3" />
+              {t('completedBadge')}
+            </span>
+          )}
+        </div>
+
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#F4F1E8] mb-4">
+          {dayData.title}
+        </h1>
+
+        {/* Quote Card */}
+        <div className="rounded-xl border-l-2 border-[#C7A86A] bg-[#0B1F1A]/50 p-5 mb-6">
+          <p className="font-serif italic text-base text-[#F4F1E8] leading-relaxed mb-2">
+            "{dayData.quote}"
+          </p>
+          <p className="text-xs text-[#A8B0AA] font-sans font-medium">— {dayData.quoteAuthor}</p>
+        </div>
+      </div>
+
+      {/* Mentor Feedback Banner (If Available) */}
+      {dayFeedback?.mentorFeedback && (
+        <div className="rounded-xl border border-[#C7A86A]/40 bg-[#064E3B]/20 p-5 mb-10 flex items-start gap-3">
+          <MessageSquare className="w-5 h-5 text-[#C7A86A] shrink-0 mt-0.5" />
+          <div>
+            <h4 className="text-xs uppercase font-bold tracking-wider text-[#C7A86A] mb-1">
+              {t('mentorNoteBanner')}
+            </h4>
+            <p className="text-xs sm:text-sm text-[#F4F1E8] italic leading-relaxed">
+              "{dayFeedback.mentorFeedback}"
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 1. Guided Reading Section */}
+      <section className="mb-12">
+        <div className="flex items-center gap-2 mb-4">
+          <BookOpen className="w-4 h-4 text-[#C7A86A]" />
+          <h2 className="font-serif text-xl font-bold text-[#F4F1E8]">{t('deepReflection')}</h2>
+        </div>
+        <div className="rounded-xl border border-emerald-950/80 bg-[#0B1F1A]/40 p-6 text-sm text-[#A8B0AA] leading-relaxed space-y-4">
+          <p className="text-[#F4F1E8]/90 font-sans text-sm sm:text-base leading-relaxed">
+            {dayData.context}
+          </p>
+        </div>
+      </section>
+
+      {/* 2. Self-Inquiry Prompts */}
+      <section className="mb-12">
+        <div className="flex items-center gap-2 mb-4">
+          <HelpCircle className="w-4 h-4 text-[#C7A86A]" />
+          <h2 className="font-serif text-xl font-bold text-[#F4F1E8]">{t('inquiryPrompts')}</h2>
+        </div>
+
+        <div className="space-y-6">
+          {dayData.questions.map((qObj, index) => {
+            const key = `q${index}`;
+            return (
+              <div key={index} className="rounded-xl border border-emerald-950/80 bg-[#0B1F1A]/30 p-5">
+                <label className="block text-sm font-semibold text-[#F4F1E8] mb-1">
+                  {index + 1}. {qObj.q}
+                </label>
+                <p className="text-xs text-[#A8B0AA]/80 mb-3 italic">{qObj.hint}</p>
+                <textarea
+                  rows={3}
+                  value={answers[key] || ''}
+                  onChange={(e) => handleFieldChange(key, e.target.value)}
+                  placeholder={t('placeholderAnswer')}
+                  className="w-full rounded-lg border border-emerald-950 bg-[#0A0D0B] p-3 text-sm text-[#F4F1E8] focus:border-[#C7A86A] focus:outline-none transition-colors"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 3. Reprogramming Practical Drill */}
+      <section className="mb-12">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-4 h-4 text-[#C7A86A]" />
+          <h2 className="font-serif text-xl font-bold text-[#F4F1E8]">{t('exerciseTitle')}</h2>
+        </div>
+
+        <div className="rounded-xl border border-emerald-950/80 bg-[#0B1F1A]/50 p-6 space-y-4">
+          <h3 className="font-serif text-lg font-bold text-[#C7A86A]">{dayData.exerciseTitle}</h3>
+          <p className="text-xs text-[#A8B0AA]">{t('exerciseInstruction')}</p>
+
+          <ol className="space-y-2 text-xs sm:text-sm text-[#F4F1E8]/90 pl-4 list-decimal marker:text-[#C7A86A]">
+            {dayData.exerciseSteps.map((step, idx) => (
+              <li key={idx} className="leading-relaxed">{step}</li>
+            ))}
+          </ol>
+
+          <div className="pt-2">
+            <label className="block text-xs font-semibold text-[#C7A86A] mb-1">
+              {dayData.exerciseLabel}
+            </label>
+            <textarea
+              rows={4}
+              value={answers.exercise || ''}
+              onChange={(e) => handleFieldChange('exercise', e.target.value)}
+              placeholder="Documenta aquí la ejecución de tu ejercicio..."
+              className="w-full rounded-lg border border-emerald-950 bg-[#0A0D0B] p-3 text-sm text-[#F4F1E8] focus:border-[#C7A86A] focus:outline-none transition-colors"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Commitment & Signature */}
+      <section className="mb-12">
+        <div className="flex items-center gap-2 mb-4">
+          <PenTool className="w-4 h-4 text-[#C7A86A]" />
+          <h2 className="font-serif text-xl font-bold text-[#F4F1E8]">{t('commitmentTitle')}</h2>
+        </div>
+
+        <div className="rounded-xl border border-[#C7A86A]/30 bg-[#064E3B]/20 p-6 space-y-5">
+          <p className="font-serif italic text-sm text-[#F4F1E8] leading-relaxed">
+            "{dayData.commitment}"
+          </p>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#A8B0AA] mb-1">
+              {t('commitmentAction')}
+            </label>
+            <input
+              type="text"
+              value={answers.commitment || ''}
+              onChange={(e) => handleFieldChange('commitment', e.target.value)}
+              placeholder={t('placeholderAction')}
+              className="w-full rounded-lg border border-emerald-950 bg-[#0A0D0B] p-3 text-sm text-[#F4F1E8] focus:border-[#C7A86A] focus:outline-none"
+            />
+          </div>
+
+          {/* Signature row */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-emerald-950/80">
+            <div>
+              <span className="text-[10px] uppercase font-bold text-[#A8B0AA] block mb-1">Firma / Nombre</span>
+              <input
+                type="text"
+                value={answers.sig_name || ''}
+                onChange={(e) => handleFieldChange('sig_name', e.target.value)}
+                className="w-full rounded border border-emerald-950 bg-[#0A0D0B] px-2.5 py-1.5 text-xs text-[#F4F1E8]"
+              />
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-[#A8B0AA] block mb-1">Fecha</span>
+              <input
+                type="date"
+                value={answers.sig_date || ''}
+                onChange={(e) => handleFieldChange('sig_date', e.target.value)}
+                className="w-full rounded border border-emerald-950 bg-[#0A0D0B] px-2.5 py-1.5 text-xs text-[#F4F1E8]"
+              />
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-[#A8B0AA] block mb-1">Hora</span>
+              <input
+                type="time"
+                value={answers.sig_time || ''}
+                onChange={(e) => handleFieldChange('sig_time', e.target.value)}
+                className="w-full rounded border border-emerald-950 bg-[#0A0D0B] px-2.5 py-1.5 text-xs text-[#F4F1E8]"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Completion & Navigation Action Bottom Bar */}
+      <div className="pt-6 border-t border-emerald-950/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="text-xs text-[#A8B0AA] text-center sm:text-left">
+          <span className="text-[#C7A86A] font-semibold">{t('nextDayPreview')} </span>
+          <span>{dayData.nextDay}</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleCompleteDay}
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-lg bg-[#C7A86A] text-[#0A0D0B] font-bold text-xs uppercase tracking-wider hover:bg-[#d8b97c] shadow-lg transition-all"
+        >
+          <CheckCircle2 className="w-4 h-4" />
+          <span>{t('completeDay')}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
