@@ -75,13 +75,20 @@ export default function StudentDashboardPage() {
               const dayData = getCurriculumDay(dayNum, locale);
               const isCompleted = progress.completedDays.includes(dayNum);
               const isCurrent = progress.currentDay === dayNum;
-              const isAvailable = isCompleted || isCurrent || dayNum <= progress.currentDay;
+              const isAdmin = currentUser?.role === 'ADMIN';
+              const isPaid = Boolean(progress.isPaid) || isAdmin;
+
+              // Day 1 is free for everyone. Days 2-21 require paid status or admin role.
+              const isUnlocked = dayNum === 1 || isPaid;
+              const isAvailable = isUnlocked && (isCompleted || isCurrent || dayNum <= progress.currentDay);
 
               return (
                 <div
                   key={dayNum}
                   className={`rounded-xl border p-4 transition-all duration-200 flex flex-col justify-between ${
-                    isCompleted
+                    !isUnlocked
+                      ? 'border-emerald-950/30 bg-[#0A0D0B]/70 opacity-60'
+                      : isCompleted
                       ? 'border-emerald-800/80 bg-[#064E3B]/20'
                       : isCurrent
                       ? 'border-[#C7A86A] bg-[#0B1F1A]/90 shadow-lg shadow-[#C7A86A]/5'
@@ -92,13 +99,22 @@ export default function StudentDashboardPage() {
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`text-[11px] font-bold uppercase tracking-wider ${
-                        isCurrent ? 'text-[#C7A86A]' : 'text-[#A8B0AA]'
-                      }`}>
-                        Día {dayNum}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[11px] font-bold uppercase tracking-wider ${
+                          isCurrent ? 'text-[#C7A86A]' : 'text-[#A8B0AA]'
+                        }`}>
+                          Día {dayNum}
+                        </span>
+                        {dayNum === 1 && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase">
+                            Gratis
+                          </span>
+                        )}
+                      </div>
                       {isCompleted ? (
                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      ) : !isUnlocked ? (
+                        <Lock className="w-3.5 h-3.5 text-amber-500/80" />
                       ) : isAvailable ? (
                         <Clock className="w-3.5 h-3.5 text-[#C7A86A]" />
                       ) : (
@@ -112,9 +128,15 @@ export default function StudentDashboardPage() {
 
                   <div className="mt-4 pt-3 border-t border-emerald-950/60 flex items-center justify-between">
                     <span className="text-[10px] text-[#A8B0AA]">
-                      {isCompleted ? t('statusCompleted') : isAvailable ? t('statusAvailable') : t('statusLocked')}
+                      {!isUnlocked
+                        ? 'Bloqueado (Plan 21 Días)'
+                        : isCompleted
+                        ? t('statusCompleted')
+                        : isAvailable
+                        ? t('statusAvailable')
+                        : t('statusLocked')}
                     </span>
-                    {isAvailable && (
+                    {isUnlocked && isAvailable ? (
                       <Link
                         href={`/dashboard/day/${dayNum}`}
                         className="text-xs text-[#C7A86A] hover:underline font-medium inline-flex items-center gap-1"
@@ -122,7 +144,15 @@ export default function StudentDashboardPage() {
                         <span>Abrir</span>
                         <ArrowRight className="w-3 h-3" />
                       </Link>
-                    )}
+                    ) : !isUnlocked ? (
+                      <Link
+                        href="/checkout"
+                        className="text-[11px] text-amber-400 hover:text-amber-300 font-semibold inline-flex items-center gap-1"
+                      >
+                        <span>Desbloquear</span>
+                        <Lock className="w-2.5 h-2.5" />
+                      </Link>
+                    ) : null}
                   </div>
                 </div>
               );

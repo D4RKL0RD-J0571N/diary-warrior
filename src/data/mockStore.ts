@@ -14,7 +14,7 @@ export const INITIAL_STUDENTS: (UserProfile & { progress: UserProgressRecord; or
       currentDay: 1,
       completedDays: [],
       completedDaysCount: 0,
-      isPaid: true,
+      isPaid: false, // Day 1 is free; Days 2-21 require payment
       isCompleted: false,
       lastActiveAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

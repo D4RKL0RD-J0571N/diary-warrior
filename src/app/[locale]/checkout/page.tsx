@@ -11,43 +11,11 @@ export default function CheckoutPage() {
   const { currentUser } = useAppStore();
   const [email, setEmail] = useState(currentUser?.email || '');
   const [name, setName] = useState(currentUser?.name || '');
-  const [loading, setLoading] = useState(false);
-
-  const handleStripeCheckout = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          locale,
-          email,
-          customerName: name,
-        }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert(data.error || 'Error processing checkout');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error connecting to checkout server');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handlePayPal = () => {
-    // If you have a PayPal direct payment link (e.g., PayPal.me or PayPal Checkout link)
+    // If you have a PayPal Payment Link, PayPal.me or PayPal Smart button URL
     const paypalUrl = process.env.NEXT_PUBLIC_PAYPAL_CHECKOUT_URL || 'https://www.paypal.com/ncp/payment/SAMPLE_PAYPAL_LINK';
     window.open(paypalUrl, '_blank');
-  };
-
-  const handleLemonSqueezy = () => {
-    const lemonUrl = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_URL || 'https://lamentemtguerrero.lemonsqueezy.com/checkout/buy/0d506a4d-797d-4ea1-aa96-0845de3286c7';
-    window.location.href = lemonUrl;
   };
 
   return (

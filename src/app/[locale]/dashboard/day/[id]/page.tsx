@@ -19,7 +19,8 @@ import {
   HelpCircle,
   PenTool,
   Clock,
-  MessageSquare
+  MessageSquare,
+  Lock
 } from 'lucide-react';
 
 export default function DayReflectionPage() {
@@ -104,6 +105,59 @@ export default function DayReflectionPage() {
   };
 
   const isCompleted = progress.completedDays.includes(dayId) || existingEntry?.isCompleted;
+  const isAdmin = currentUser?.role === 'ADMIN';
+  const isPaid = Boolean(progress.isPaid) || isAdmin;
+
+  // Paywall gating: Day 1 is 100% free. Days 2-21 require paid status or admin role.
+  if (dayId > 1 && !isPaid) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-20 text-center">
+        <div className="rounded-2xl border border-emerald-950/80 bg-[#0B1F1A]/90 p-8 sm:p-10 shadow-2xl backdrop-blur-md">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-6 text-amber-400">
+            <Lock className="w-7 h-7" />
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-widest text-[#C7A86A]">
+            Contenido Exclusivo · Días 2 al 21
+          </span>
+          <h2 className="font-serif text-3xl font-bold text-[#F4F1E8] mt-2 mb-3">
+            Desbloquea el Protocolo Completo
+          </h2>
+          <p className="text-sm text-[#A8B0AA] leading-relaxed mb-6">
+            Has completado o alcanzado el límite del Día 1 de prueba gratuita. Para continuar reprogramando tus patrones cognitivos con los días 2 al 21, retroalimentación del mentor y acceso vitalicio, adquiere tu pase oficial.
+          </p>
+
+          <div className="rounded-xl border border-emerald-950 bg-[#064E3B]/20 p-4 mb-6 text-left">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-semibold text-[#F4F1E8]">La Mente del Guerrero (21 Días)</span>
+              <span className="font-serif text-lg font-bold text-[#C7A86A]">$47 USD</span>
+            </div>
+            <ul className="text-xs text-[#A8B0AA] space-y-1.5 list-disc list-inside">
+              <li>Acceso completo a los 21 días interactivos</li>
+              <li>Sincronización en la nube y guardado automático</li>
+              <li>Acompañamiento y notas privadas del mentor</li>
+              <li>Pago único mediante PayPal seguro</li>
+            </ul>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/checkout"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#0070BA] hover:bg-[#005ea6] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#0070BA]/20 transition-all"
+            >
+              <span>Desbloquear con PayPal</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/dashboard/day/1"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3.5 rounded-xl border border-emerald-950 bg-[#0A0D0B] hover:bg-[#064E3B]/30 text-xs text-[#A8B0AA] transition-all"
+            >
+              Volver al Día 1 Gratis
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
