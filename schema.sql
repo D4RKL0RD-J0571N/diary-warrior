@@ -106,12 +106,18 @@ RETURNS BOOLEAN
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
+SET search_path = public
 AS $$
     SELECT EXISTS (
         SELECT 1 FROM public.profiles
         WHERE id = auth.uid() AND role = 'ADMIN'
     );
 $$;
+
+-- Secure function permissions (Privilegio Mínimo)
+REVOKE EXECUTE ON FUNCTION public.is_admin() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.is_admin() FROM anon;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
 
 -- PROFILES Policies
 CREATE POLICY "Users can view their own profile or admins can view all"
