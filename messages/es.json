@@ -141,8 +141,9 @@
     "title": "Adquirir Acceso Completo",
     "subtitle": "Desbloquea el programa completo de 21 días y conecta con tu mentor.",
     "productName": "La Mente del Guerrero — 21 Días",
-    "securePayment": "Procesamiento seguro con Stripe o Lemon Squeezy",
-    "payWithStripe": "Pagar con Stripe Checkout ($47 USD)",
+    "securePayment": "Procesamiento seguro con Stripe, PayPal o Lemon Squeezy",
+    "payWithStripe": "Tarjeta de Crédito / Débito ($47 USD)",
+    "payWithPayPal": "Pagar con PayPal ($47 USD)",
     "payWithLemon": "Pagar con Lemon Squeezy",
     "immediateAccess": "Tu cuenta se activará de forma instantánea al procesar la compra."
   }
