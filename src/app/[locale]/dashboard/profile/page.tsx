@@ -2,13 +2,15 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
 import { useAppStore } from '@/context/AppStoreContext';
-import { User, Download, FileText, CheckCircle2, Globe, Shield, RotateCcw } from 'lucide-react';
+import { User, Download, FileText, CheckCircle2, Globe, Shield, LogOut } from 'lucide-react';
 
 export default function StudentProfilePage() {
   const t = useTranslations('profile');
   const tCommon = useTranslations('common');
-  const { currentUser, progress, journalEntries } = useAppStore();
+  const router = useRouter();
+  const { currentUser, progress, journalEntries, logout } = useAppStore();
 
   const handleExportJSON = () => {
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({
@@ -123,17 +125,14 @@ export default function StudentProfilePage() {
 
           <button
             type="button"
-            onClick={() => {
-              if (confirm(t('resetConfirm'))) {
-                localStorage.removeItem('warrior_journal_entries');
-                localStorage.removeItem('warrior_user_progress');
-                window.location.reload();
-              }
+            onClick={async () => {
+              await logout();
+              router.push('/login');
             }}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#0A0D0B] hover:bg-rose-950/40 text-rose-300 border border-rose-900/40 text-xs font-semibold uppercase tracking-wider transition-all"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#0A0D0B] hover:bg-rose-950/40 text-[#F4F1E8] border border-emerald-900/60 text-xs font-semibold uppercase tracking-wider transition-all"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>{t('resetProgress')}</span>
+            <LogOut className="w-3.5 h-3.5 text-rose-400" />
+            <span>{tCommon('logout')}</span>
           </button>
         </div>
       </div>

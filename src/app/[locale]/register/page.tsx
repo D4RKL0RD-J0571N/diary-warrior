@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { useAppStore } from '@/context/AppStoreContext';
 import { createClient } from '@/utils/supabase/client';
-import { Shield, Lock, Mail, User, ArrowRight, Eye, EyeOff, CheckCircle2, Sparkles } from 'lucide-react';
+import { Shield, Lock, Mail, User, ArrowRight, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 export default function RegisterPage() {
   const t = useTranslations('auth');
@@ -37,39 +37,54 @@ export default function RegisterPage() {
 
     try {
       const supabase = createClient();
+      const trimmedEmail = email.trim().toLowerCase();
+      const trimmedName = name.trim();
+
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: trimmedEmail,
         password,
         options: {
           data: {
-            name: name.trim(),
+            name: trimmedName,
+            role: 'STUDENT',
           },
         },
       });
 
       if (error) {
-        console.warn('Supabase Auth error:', error.message);
-        // Fallback demo student registration
-        setCurrentUser({
-          id: `usr-${Date.now()}`,
-          email,
-          name: name.trim() || email.split('@')[0],
+        setErrorMsg(error.message);
+        return;
+      }
+
+      if (data.user) {
+        // Also ensure user profile exists in public.profiles table
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          email: trimmedEmail,
+          name: trimmedName || trimmedEmail.split('@')[0],
           role: 'STUDENT',
-          preferredLanguage: 'es',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          preferred_language: 'es',
         });
-        router.push('/dashboard');
-      } else if (data.user) {
+
+        // Initialize progress table
+        await supabase.from('user_progress').upsert({
+          user_id: data.user.id,
+          current_day: 1,
+          completed_days: [],
+          completed_days_count: 0,
+          is_paid: false,
+        });
+
         setCurrentUser({
           id: data.user.id,
-          email: data.user.email || email,
-          name: name.trim() || email.split('@')[0],
+          email: data.user.email || trimmedEmail,
+          name: trimmedName || trimmedEmail.split('@')[0],
           role: 'STUDENT',
           preferredLanguage: 'es',
           createdAt: data.user.created_at,
           updatedAt: new Date().toISOString(),
         });
+
         router.push('/dashboard');
       }
     } catch (err: any) {
@@ -162,7 +177,7 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-emerald-950 bg-[#0A0D0B] pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-[#F4F1E8] focus:border-[#C7A86A] focus:outline-none transition-all placeholder:text-[#A8B0AA]/40"
+                className="w-full rounded-lg border border-emerald-950 bg-[#0A0D0B] pl-10 pr-10 py-2.5 text-xs sm:text-sm text-[#F4F1E8] focus:border-[#C7A86A] focus:outline-none transition-all placeholder:text-[#A8B0AA]/40"
               />
               <Lock className="w-4 h-4 text-[#A8B0AA] absolute left-3.5 top-3" />
             </div>
@@ -178,13 +193,12 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        {/* Security badge */}
-        <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#A8B0AA]/80 mb-2">
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#A8B0AA]/80 mb-6">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
           <span>{t('secureShieldNote')}</span>
         </div>
 
-        <p className="text-center text-xs text-[#A8B0AA] mt-6 pt-5 border-t border-emerald-950/80">
+        <p className="text-center text-xs text-[#A8B0AA]">
           {t('haveAccount')}{' '}
           <Link href="/login" className="text-[#C7A86A] hover:underline font-semibold ml-1">
             {t('submitLogin')}

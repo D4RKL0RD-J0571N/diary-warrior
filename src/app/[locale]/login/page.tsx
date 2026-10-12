@@ -5,12 +5,12 @@ import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { useAppStore } from '@/context/AppStoreContext';
 import { createClient } from '@/utils/supabase/client';
-import { Shield, Lock, Mail, ArrowRight, UserCheck, Eye, EyeOff, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Shield, Lock, Mail, ArrowRight, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 export default function LoginPage() {
   const t = useTranslations('auth');
   const router = useRouter();
-  const { setCurrentUser, switchUserRole } = useAppStore();
+  const { setCurrentUser } = useAppStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -23,38 +23,43 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Attempt Supabase Auth login if online
       const supabase = createClient();
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim().toLowerCase(),
         password,
       });
 
       if (error) {
-        // If Supabase auth credentials fail or project is in local demo mode, check fallback
-        console.warn('Supabase Auth response:', error.message);
-        // Fallback for demo experience if user is testing offline
-        setCurrentUser({
-          id: 'user-logged-in',
-          email,
-          name: email.split('@')[0],
-          role: email.includes('admin') || email.includes('mentor') ? 'ADMIN' : 'STUDENT',
-          preferredLanguage: 'es',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
-        router.push(email.includes('admin') || email.includes('mentor') ? '/admin/dashboard' : '/dashboard');
-      } else if (data.user) {
-        setCurrentUser({
+        setErrorMsg(error.message);
+        return;
+      }
+
+      if (data.user) {
+        // Fetch profile to know actual assigned role from database
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        const role = profileData?.role || (data.user.email?.includes('admin') || data.user.email?.includes('mentor') ? 'ADMIN' : 'STUDENT');
+        const userObj = {
           id: data.user.id,
           email: data.user.email || email,
-          name: data.user.user_metadata?.name || email.split('@')[0],
-          role: data.user.email?.includes('admin') ? 'ADMIN' : 'STUDENT',
-          preferredLanguage: 'es',
+          name: profileData?.name || data.user.user_metadata?.name || email.split('@')[0],
+          role: role as 'STUDENT' | 'ADMIN',
+          preferredLanguage: (profileData?.preferred_language as 'es' | 'en') || 'es',
           createdAt: data.user.created_at,
           updatedAt: new Date().toISOString()
-        });
-        router.push('/dashboard');
+        };
+
+        setCurrentUser(userObj);
+
+        if (role === 'ADMIN') {
+          router.push('/admin/dashboard');
+        } else {
+          router.push('/dashboard');
+        }
       }
     } catch (err: any) {
       console.error(err);
@@ -62,16 +67,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDemoStudent = () => {
-    switchUserRole('STUDENT');
-    router.push('/dashboard');
-  };
-
-  const handleDemoAdmin = () => {
-    switchUserRole('ADMIN');
-    router.push('/admin/dashboard');
   };
 
   return (
@@ -148,33 +143,7 @@ export default function LoginPage() {
           <span>{t('secureShieldNote')}</span>
         </div>
 
-        {/* Quick Demo Switches */}
-        <div className="border-t border-emerald-950/80 pt-5 space-y-2">
-          <p className="text-[10px] text-center text-[#A8B0AA]/60 uppercase tracking-widest mb-3">
-            {t('demoAccessNote')}
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={handleDemoStudent}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#064E3B]/30 hover:bg-[#064E3B]/60 text-[#F4F1E8] text-xs font-medium border border-emerald-800/40 transition-all cursor-pointer"
-            >
-              <UserCheck className="w-3.5 h-3.5 text-[#C7A86A]" />
-              <span>{t('demoStudent')}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDemoAdmin}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#0B1F1A] hover:bg-[#064E3B]/40 text-[#C7A86A] text-xs font-medium border border-[#C7A86A]/40 transition-all cursor-pointer"
-            >
-              <Shield className="w-3.5 h-3.5 text-[#C7A86A]" />
-              <span>{t('demoAdmin')}</span>
-            </button>
-          </div>
-        </div>
-
-        <p className="text-center text-xs text-[#A8B0AA] mt-6">
+        <p className="text-center text-xs text-[#A8B0AA]">
           {t('noAccount')}{' '}
           <Link href="/register" className="text-[#C7A86A] hover:underline font-semibold ml-1">
             {t('submitRegister')}

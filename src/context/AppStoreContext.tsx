@@ -1,8 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserProfile, UserProgressRecord, JournalEntryRecord, MentorFeedbackRecord, OrderRecord, Locale } from '@/types/database';
+import { UserProfile, UserProgressRecord, JournalEntryRecord, MentorFeedbackRecord, OrderRecord } from '@/types/database';
 import { INITIAL_STUDENTS, INITIAL_JOURNAL_ENTRIES, INITIAL_MENTOR_FEEDBACK } from '@/data/mockStore';
+import { createClient } from '@/utils/supabase/client';
 
 interface AppContextType {
   currentUser: UserProfile | null;
@@ -18,15 +19,15 @@ interface AppContextType {
   addMentorFeedback: (userId: string, dayNumber: number, feedback: string) => Promise<void>;
   addPrivateNote: (userId: string, note: string) => Promise<void>;
   grantStudentAccess: (userId: string) => void;
-  switchUserRole: (role: 'STUDENT' | 'ADMIN') => void;
+  logout: () => Promise<void>;
 }
 
 const defaultProgress: UserProgressRecord = {
-  userId: 'user-student-1',
+  userId: 'user-guest',
   currentDay: 1,
   completedDays: [],
   completedDaysCount: 0,
-  isPaid: false, // Day 1 is free; subsequent days require purchase or admin role
+  isPaid: false, // Day 1 is free; subsequent days require registration & purchase or admin
   isCompleted: false,
   lastActiveAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -35,22 +36,11 @@ const defaultProgress: UserProgressRecord = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  // Current user (fresh student with Day 1 start)
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>({
-    id: 'user-student-new',
-    email: 'nuevo.guerrero@example.com',
-    name: 'Nuevo Guerrero',
-    role: 'STUDENT',
-    preferredLanguage: 'es',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  });
+  // Current user starts as null (or loaded from session/local storage)
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
 
   const [studentsList, setStudentsList] = useState(INITIAL_STUDENTS);
-  const [progress, setProgress] = useState<UserProgressRecord>(() => {
-    const student = INITIAL_STUDENTS[0];
-    return student ? student.progress : defaultProgress;
-  });
+  const [progress, setProgress] = useState<UserProgressRecord>(defaultProgress);
 
   const [entriesMap, setEntriesMap] = useState<Record<number, JournalEntryRecord>>(() => {
     const initialMap: Record<number, JournalEntryRecord> = {};
@@ -64,7 +54,63 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
 
-  // Sync entries and progress with localStorage if available for persistence across browser reloads
+  // Check Supabase session on startup and sync state
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          const role = profile?.role || (session.user.email?.includes('admin') || session.user.email?.includes('mentor') ? 'ADMIN' : 'STUDENT');
+
+          const userObj: UserProfile = {
+            id: session.user.id,
+            email: session.user.email || '',
+            name: profile?.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Guerrero',
+            role: role as 'STUDENT' | 'ADMIN',
+            preferredLanguage: (profile?.preferred_language as 'es' | 'en') || 'es',
+            createdAt: session.user.created_at,
+            updatedAt: new Date().toISOString(),
+          };
+
+          setCurrentUser(userObj);
+
+          // Fetch progress if available
+          const { data: dbProgress } = await supabase
+            .from('user_progress')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .single();
+
+          if (dbProgress) {
+            setProgress({
+              userId: dbProgress.user_id,
+              currentDay: dbProgress.current_day,
+              completedDays: dbProgress.completed_days || [],
+              completedDaysCount: dbProgress.completed_days_count || 0,
+              isPaid: dbProgress.is_paid || role === 'ADMIN',
+              isCompleted: dbProgress.is_completed || false,
+              lastActiveAt: dbProgress.last_active_at || new Date().toISOString(),
+              updatedAt: dbProgress.updated_at || new Date().toISOString(),
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Silent auth check error:', err);
+      }
+    };
+
+    initAuth();
+  }, []);
+
+  // Sync entries and progress with localStorage if available
   useEffect(() => {
     try {
       const storedEntries = localStorage.getItem('warrior_journal_entries');
@@ -80,16 +126,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setFeedbackList(JSON.parse(storedFeedback));
       }
     } catch (e) {
-      // LocalStorage quiet fallback
+      // LocalStorage fallback
     }
   }, []);
 
   const saveJournalEntry = async (dayNumber: number, responses: Record<string, string>, isCompleted = false) => {
     setIsSaving(true);
     const now = new Date().toISOString();
-    
-    // Cloud sync simulation with high resilience
-    await new Promise(r => setTimeout(r, 450));
 
     const updatedEntry: JournalEntryRecord = {
       userId: currentUser?.id || 'guest',
@@ -98,7 +141,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       responses,
       isCompleted,
       completedAt: isCompleted ? now : entriesMap[dayNumber]?.completedAt,
-      updatedAt: now
+      updatedAt: now,
     };
 
     setEntriesMap(prev => {
@@ -108,6 +151,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {}
       return next;
     });
+
+    // If logged in to Supabase, sync with database
+    if (currentUser?.id) {
+      try {
+        const supabase = createClient();
+        await supabase.from('journal_entries').upsert({
+          user_id: currentUser.id,
+          day_number: dayNumber,
+          language_used: currentUser.preferredLanguage || 'es',
+          responses,
+          is_completed: isCompleted,
+          completed_at: isCompleted ? now : null,
+          updated_at: now,
+        });
+      } catch (e) {
+        console.warn('Cloud sync offline fallback');
+      }
+    }
 
     setIsSaving(false);
     setLastSavedAt(now);
@@ -120,7 +181,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       completedSet.add(dayNumber);
       const newCompletedDays = Array.from(completedSet).sort((a, b) => a - b);
       const nextDay = Math.min(21, Math.max(prev.currentDay, dayNumber + 1));
-      
+
       const nextProgress: UserProgressRecord = {
         ...prev,
         completedDays: newCompletedDays,
@@ -128,14 +189,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         currentDay: nextDay,
         isCompleted: newCompletedDays.length >= 21,
         lastActiveAt: now,
-        updatedAt: now
+        updatedAt: now,
       };
 
       try {
         localStorage.setItem('warrior_user_progress', JSON.stringify(nextProgress));
       } catch (e) {}
 
-      // Update in student directory list
+      if (currentUser?.id) {
+        try {
+          const supabase = createClient();
+          supabase.from('user_progress').upsert({
+            user_id: currentUser.id,
+            current_day: nextDay,
+            completed_days: newCompletedDays,
+            completed_days_count: newCompletedDays.length,
+            is_completed: newCompletedDays.length >= 21,
+            last_active_at: now,
+            updated_at: now,
+          });
+        } catch (e) {}
+      }
+
       setStudentsList(currList =>
         currList.map(s => (s.id === currentUser?.id ? { ...s, progress: nextProgress } : s))
       );
@@ -151,7 +226,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       mentorId: currentUser?.id || 'admin-mentor',
       dayNumber,
       mentorFeedback: feedback,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     setFeedbackList(prev => {
@@ -161,6 +236,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {}
       return next;
     });
+
+    if (currentUser?.id) {
+      try {
+        const supabase = createClient();
+        await supabase.from('mentor_feedback').insert({
+          user_id: userId,
+          mentor_id: currentUser.id,
+          day_number: dayNumber,
+          mentor_feedback: feedback,
+        });
+      } catch (e) {}
+    }
   };
 
   const addPrivateNote = async (userId: string, note: string) => {
@@ -169,7 +256,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       userId,
       mentorId: currentUser?.id || 'admin-mentor',
       privateNote: note,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     setFeedbackList(prev => {
@@ -179,6 +266,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {}
       return next;
     });
+
+    if (currentUser?.id) {
+      try {
+        const supabase = createClient();
+        await supabase.from('mentor_feedback').insert({
+          user_id: userId,
+          mentor_id: currentUser.id,
+          private_note: note,
+        });
+      } catch (e) {}
+    }
   };
 
   const grantStudentAccess = (userId: string) => {
@@ -187,7 +285,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (s.id === userId) {
           return {
             ...s,
-            progress: { ...s.progress, isPaid: true }
+            progress: { ...s.progress, isPaid: true },
           };
         }
         return s;
@@ -195,28 +293,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const switchUserRole = (role: 'STUDENT' | 'ADMIN') => {
-    if (role === 'ADMIN') {
-      setCurrentUser({
-        id: 'admin-mentor-jafeth',
-        email: 'jafeth.mentor@warriorsmind.com',
-        name: 'Jafeth López (Mentor)',
-        role: 'ADMIN',
-        preferredLanguage: 'es',
-        createdAt: '2026-01-01T00:00:00Z',
-        updatedAt: new Date().toISOString()
-      });
-    } else {
-      setCurrentUser({
-        id: 'user-student-new',
-        email: 'nuevo.guerrero@example.com',
-        name: 'Nuevo Guerrero',
-        role: 'STUDENT',
-        preferredLanguage: 'es',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
-    }
+  const logout = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch (e) {}
+    setCurrentUser(null);
+    setProgress(defaultProgress);
   };
 
   return (
@@ -235,7 +318,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         addMentorFeedback,
         addPrivateNote,
         grantStudentAccess,
-        switchUserRole
+        logout,
       }}
     >
       {children}

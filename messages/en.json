@@ -138,7 +138,12 @@
     "paywallBtnBackFree": "Return to Free Day 1",
     "validationMissingTitle": "Required Reflection Fields Incomplete",
     "validationMissingDesc": "To move forward to the next day and forge mental change, you must answer all self-inquiry questions, record your exercise drill, and sign your commitment.",
-    "validationMissingCount": "You have {count} incomplete fields remaining for this day."
+    "validationMissingCount": "You have {count} incomplete fields remaining for this day.",
+    "registerRequiredBadge": "Registration Required · Continue Your Journey",
+    "registerRequiredTitle": "Create Your Account to Save Day 1",
+    "registerRequiredDesc": "You have completed Day 1 free training! To record your progress in the cloud and unlock the rest of the 21-day program, create your account or sign in.",
+    "registerRequiredBtn": "Create Warrior Account",
+    "registerRequiredLoginBtn": "Already have an account? Sign In"
   },
   "auth": {
     "loginTitle": "Access the Sanctuary",

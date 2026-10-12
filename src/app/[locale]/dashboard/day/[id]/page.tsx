@@ -144,7 +144,45 @@ export default function DayReflectionPage() {
   const isAdmin = currentUser?.role === 'ADMIN';
   const isPaid = Boolean(progress.isPaid) || isAdmin;
 
-  // Paywall gating: Day 1 is 100% free. Days 2-21 require paid status or admin role.
+  // Registration gating: Day 1 is 100% free for everyone. To advance beyond Day 1, user must have an account.
+  if (dayId > 1 && !currentUser) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-20 text-center">
+        <div className="rounded-2xl border border-emerald-950/80 bg-[#0B1F1A]/90 p-8 sm:p-10 shadow-2xl backdrop-blur-md">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-[#064E3B]/40 border border-[#C7A86A]/40 flex items-center justify-center mb-6 text-[#C7A86A]">
+            <Lock className="w-7 h-7" />
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-widest text-[#C7A86A]">
+            {t('registerRequiredBadge')}
+          </span>
+          <h2 className="font-serif text-3xl font-bold text-[#F4F1E8] mt-2 mb-3">
+            {t('registerRequiredTitle')}
+          </h2>
+          <p className="text-sm text-[#A8B0AA] leading-relaxed mb-6">
+            {t('registerRequiredDesc')}
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/register"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#C7A86A] hover:bg-[#d8b97c] text-[#0A0D0B] font-bold text-xs uppercase tracking-wider shadow-lg shadow-[#C7A86A]/10 transition-all"
+            >
+              <span>{t('registerRequiredBtn')}</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/login"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3.5 rounded-xl border border-emerald-950 bg-[#0A0D0B] hover:bg-[#064E3B]/30 text-xs text-[#A8B0AA] transition-all"
+            >
+              {t('registerRequiredLoginBtn')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Paywall gating: Days 2-21 require paid status or admin role.
   if (dayId > 1 && !isPaid) {
     return (
       <div className="max-w-xl mx-auto px-4 py-20 text-center">

@@ -138,7 +138,12 @@
     "paywallBtnBackFree": "Volver al Día 1 Gratis",
     "validationMissingTitle": "Campos Requeridos Incompletos",
     "validationMissingDesc": "Para avanzar al siguiente día y consolidar tu reprogramación, debes responder todas las preguntas, documentar el ejercicio y firmar tu compromiso.",
-    "validationMissingCount": "Te faltan {count} campos por completar en este día."
+    "validationMissingCount": "Te faltan {count} campos por completar en este día.",
+    "registerRequiredBadge": "Registro Requerido · Continúa tu Travesía",
+    "registerRequiredTitle": "Crea tu Cuenta para Guardar tu Día 1",
+    "registerRequiredDesc": "¡Has completado el Día 1 de entrenamiento gratuito! Para registrar tu avance en la nube y desbloquear el resto del programa de 21 días, crea tu cuenta o inicia sesión.",
+    "registerRequiredBtn": "Crear Cuenta de Guerrero",
+    "registerRequiredLoginBtn": "Ya tengo cuenta, Iniciar Sesión"
   },
   "auth": {
     "loginTitle": "Acceso al Santuario",

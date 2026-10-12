@@ -9,7 +9,7 @@ import { Shield, BookOpen, User, ArrowRight } from 'lucide-react';
 
 export function NavigationHeader() {
   const t = useTranslations('common');
-  const { currentUser, switchUserRole } = useAppStore();
+  const { currentUser } = useAppStore();
   const isAdmin = currentUser?.role === 'ADMIN';
 
   return (
@@ -56,26 +56,14 @@ export function NavigationHeader() {
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
 
-          {/* Role testing switcher: only for toggling admin / student testing */}
-          <div className="hidden lg:flex items-center border border-emerald-950/60 rounded-full px-2 py-0.5 text-xs bg-[#0B1F1A]">
-            <span className="text-[#A8B0AA] mr-1.5 text-[11px]">{t('roleLabel')}</span>
-            <button
-              onClick={() => switchUserRole(currentUser?.role === 'ADMIN' ? 'STUDENT' : 'ADMIN')}
-              className="text-[#C7A86A] hover:underline font-medium text-xs"
-              title={t('roleToggleTitle')}
-            >
-              {isAdmin ? t('roleMentor') : t('roleStudent')}
-            </button>
-          </div>
-
           {currentUser ? (
             <div className="flex items-center gap-2">
               <Link
-                href="/dashboard"
-                className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[#064E3B]/80 hover:bg-[#064E3B] text-[#F4F1E8] border border-emerald-700/40 text-xs font-medium transition-all shadow-sm"
+                href="/dashboard/profile"
+                className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#064E3B]/60 hover:bg-[#064E3B] text-[#F4F1E8] border border-emerald-700/40 text-xs font-medium transition-all shadow-sm"
               >
                 <User className="w-3.5 h-3.5 text-[#C7A86A]" />
-                <span>{currentUser.name.split(' ')[0]}</span>
+                <span>{currentUser.name ? currentUser.name.split(' ')[0] : 'Guerrero'}</span>
               </Link>
             </div>
           ) : (
