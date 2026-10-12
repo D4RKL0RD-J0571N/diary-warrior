@@ -135,7 +135,10 @@
     "paywallFeature3": "Direct mentor inspection and private coaching notes",
     "paywallFeature4": "One-time payment via secure PayPal checkout",
     "paywallBtnPayPal": "Unlock with PayPal",
-    "paywallBtnBackFree": "Return to Free Day 1"
+    "paywallBtnBackFree": "Return to Free Day 1",
+    "validationMissingTitle": "Required Reflection Fields Incomplete",
+    "validationMissingDesc": "To move forward to the next day and forge mental change, you must answer all self-inquiry questions, record your exercise drill, and sign your commitment.",
+    "validationMissingCount": "You have {count} incomplete fields remaining for this day."
   },
   "auth": {
     "loginTitle": "Access the Sanctuary",
@@ -144,15 +147,22 @@
     "registerSubtitle": "Create your secure account to store your 21 days in the cloud.",
     "emailLabel": "Email address",
     "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm Password",
     "nameLabel": "Your full name",
     "namePlaceholder": "Your full name",
     "emailPlaceholder": "your.email@example.com",
     "submitLogin": "Sign In to Journal",
     "submitRegister": "Sign Up & Begin",
+    "signingIn": "Signing in...",
+    "registering": "Creating account...",
     "noAccount": "Don't have an account yet?",
     "haveAccount": "Already have an account?",
     "demoStudent": "Sign in as Demo Student",
-    "demoAdmin": "Sign in as Mentor (Admin)"
+    "demoAdmin": "Sign in as Mentor (Admin)",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordTooShort": "Password must be at least 6 characters long.",
+    "secureShieldNote": "Your personal reflections are encrypted and safely stored in the cloud.",
+    "demoAccessNote": "Quick Access for Testing and Role Simulation:"
   },
   "admin": {
     "badge": "Mentor Backoffice",

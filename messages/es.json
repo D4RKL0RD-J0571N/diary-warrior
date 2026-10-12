@@ -135,7 +135,10 @@
     "paywallFeature3": "Acompañamiento y notas privadas del mentor",
     "paywallFeature4": "Pago único mediante PayPal seguro",
     "paywallBtnPayPal": "Desbloquear con PayPal",
-    "paywallBtnBackFree": "Volver al Día 1 Gratis"
+    "paywallBtnBackFree": "Volver al Día 1 Gratis",
+    "validationMissingTitle": "Campos Requeridos Incompletos",
+    "validationMissingDesc": "Para avanzar al siguiente día y consolidar tu reprogramación, debes responder todas las preguntas, documentar el ejercicio y firmar tu compromiso.",
+    "validationMissingCount": "Te faltan {count} campos por completar en este día."
   },
   "auth": {
     "loginTitle": "Acceso al Santuario",
@@ -144,15 +147,22 @@
     "registerSubtitle": "Crea tu cuenta segura para almacenar tus 21 días en la nube.",
     "emailLabel": "Correo electrónico",
     "passwordLabel": "Contraseña",
+    "confirmPasswordLabel": "Confirmar Contraseña",
     "nameLabel": "Tu nombre completo",
     "namePlaceholder": "Tu nombre completo",
     "emailPlaceholder": "tu.correo@ejemplo.com",
     "submitLogin": "Entrar a mi Diario",
     "submitRegister": "Registrarme e Iniciar",
+    "signingIn": "Iniciando sesión...",
+    "registering": "Creando cuenta...",
     "noAccount": "¿Aún no tienes cuenta?",
     "haveAccount": "¿Ya tienes una cuenta?",
     "demoStudent": "Entrar como Alumno Demo",
-    "demoAdmin": "Entrar como Mentor (Admin)"
+    "demoAdmin": "Entrar como Mentor (Admin)",
+    "passwordMismatch": "Las contraseñas no coinciden.",
+    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
+    "secureShieldNote": "Tus reflexiones personales están encriptadas y protegidas en la nube.",
+    "demoAccessNote": "Accesos Rápidos de Demostración y Pruebas:"
   },
   "admin": {
     "badge": "Backoffice Mentor",

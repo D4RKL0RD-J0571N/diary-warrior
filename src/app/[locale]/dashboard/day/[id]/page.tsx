@@ -69,19 +69,55 @@ export default function DayReflectionPage() {
   const dayFeedback = mentorFeedback.find(
     f => (f.userId === currentUser?.id || f.userId === 'user-student-1') && f.dayNumber === dayId
   );
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const handleFieldChange = (key: string, val: string) => {
     setAnswers(prev => {
       const next = { ...prev, [key]: val };
       return next;
     });
+    if (validationError) {
+      setValidationError(null);
+    }
   };
 
   const handleManualSave = async () => {
     await saveJournalEntry(dayId, answers, false);
   };
 
+  // Check which required fields are missing
+  const getMissingFields = () => {
+    const missing: string[] = [];
+    dayData.questions.forEach((_, idx) => {
+      const key = `q${idx}`;
+      if (!answers[key] || answers[key].trim().length < 5) {
+        missing.push(`Pregunta ${idx + 1}`);
+      }
+    });
+
+    if (!answers.exercise || answers.exercise.trim().length < 5) {
+      missing.push('Ejercicio Práctico');
+    }
+
+    if (!answers.commitment || answers.commitment.trim().length < 5) {
+      missing.push('Acción de Compromiso');
+    }
+
+    return missing;
+  };
+
+  const missingFields = getMissingFields();
+  const isFormValid = missingFields.length === 0;
+
   const handleCompleteDay = async () => {
+    if (!isFormValid) {
+      setValidationError(t('validationMissingDesc'));
+      // Scroll to error banner smoothly
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      return;
+    }
+
+    setValidationError(null);
     await saveJournalEntry(dayId, answers, true);
     await markDayAsCompleted(dayId);
 
@@ -369,19 +405,46 @@ export default function DayReflectionPage() {
         </div>
       </section>
 
+      {/* Mandatory Validation Warning Notice (If fields are missing) */}
+      {validationError && (
+        <div className="rounded-xl border border-amber-500/50 bg-amber-950/30 p-4 mb-6 flex items-start gap-3">
+          <Shield className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="text-xs">
+            <h4 className="font-semibold text-amber-300 mb-1">{t('validationMissingTitle')}</h4>
+            <p className="text-[#A8B0AA] mb-2">{validationError}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {missingFields.map((field, i) => (
+                <span key={i} className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-medium">
+                  • {field}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Completion & Navigation Action Bottom Bar */}
       <div className="pt-6 border-t border-emerald-950/80 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-xs text-[#A8B0AA] text-center sm:text-left">
           <span className="text-[#C7A86A] font-semibold">{t('nextDayPreview')} </span>
           <span>{dayData.nextDay}</span>
+          {!isFormValid && (
+            <p className="text-[11px] text-amber-400/90 mt-1">
+              {t('validationMissingCount', { count: missingFields.length })}
+            </p>
+          )}
         </div>
 
         <button
           type="button"
           onClick={handleCompleteDay}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-lg bg-[#C7A86A] text-[#0A0D0B] font-bold text-xs uppercase tracking-wider hover:bg-[#d8b97c] shadow-lg transition-all"
+          className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg transition-all ${
+            isFormValid
+              ? 'bg-[#C7A86A] text-[#0A0D0B] hover:bg-[#d8b97c] cursor-pointer'
+              : 'bg-[#0B1F1A] text-[#A8B0AA] border border-amber-500/40 hover:border-amber-400 cursor-pointer'
+          }`}
         >
-          <CheckCircle2 className="w-4 h-4" />
+          <CheckCircle2 className={`w-4 h-4 ${isFormValid ? 'text-[#0A0D0B]' : 'text-amber-400'}`} />
           <span>{t('completeDay')}</span>
         </button>
       </div>
