@@ -141,10 +141,8 @@
     "title": "Unlock Full Program",
     "subtitle": "Get immediate lifetime access to the 21-day experience and mentor feedback.",
     "productName": "The Warrior's Mind — 21 Days",
-    "securePayment": "Secure processing via Stripe, PayPal or Lemon Squeezy",
-    "payWithStripe": "Credit / Debit Card ($47 USD)",
-    "payWithPayPal": "Pay with PayPal ($47 USD)",
-    "payWithLemon": "Pay with Lemon Squeezy",
+    "securePayment": "Secure processing with buyer protection via PayPal",
+    "payWithPayPal": "Continue with PayPal ($47 USD)",
     "immediateAccess": "Your account will be provisioned instantly upon successful payment."
   }
 }
